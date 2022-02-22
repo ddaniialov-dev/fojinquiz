@@ -7,6 +7,8 @@ services:
   db:
     container_name: quiz_db
     image: postgres:13
+    networks:
+      - backend
     volumes:
       - _postgres_data:/var/lib/postgresql/data
     env_file:
@@ -16,13 +18,30 @@ services:
   web:
     container_name: quiz_web
     build: .
+    networks:
+      - backend
     env_file: 
      - .env
     depends_on:
      - db
     ports:
-      - "80:8000"
+      - "80:80"
     volumes:
       - ./:/code
-    command: uvicorn main:app --reload --host 0.0.0.0
+    command: uvicorn main:app --reload --host 0.0.0.0 --port 80
+  traefik:
+    container_name: quiz_traefik
+    image: traefik:v2.2
+    networks:
+      - backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - "./traefik.dev.toml:/etc/traefik/traefik.toml"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+networks:
+  backend:
+    driver: bridge
+
     

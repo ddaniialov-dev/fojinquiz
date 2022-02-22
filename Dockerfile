@@ -1,9 +1,9 @@
-FROM python:3.8
+FROM python:3.10-slim
 
-WORKDIR /code
-
-COPY requirements.txt /code
-
-RUN pip install -r requirements.txt
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
 COPY ./ /code
+WORKDIR /code
+
+RUN pip install -r requirements.txt
