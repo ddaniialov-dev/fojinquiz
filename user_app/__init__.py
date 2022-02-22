@@ -1,3 +1,5 @@
-from . import models, schemas
+from . import models, schemas, crud
 
-from .crud import UserManager
+from .models import *
+from .crud import *
+from .schemas import *

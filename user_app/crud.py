@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-import models, schemas
+from user_app import models, schemas
 import hashlib, uuid
 
 
@@ -18,11 +18,12 @@ class UserManager:
     def get_users(self, skip: int = 0, limit: int = 100):
         return self.db.query(models.User).offset(skip).limit(limit).all()
     
-    def create_user(db: Session, user: schemas.UserCreate):
-        salt = uuid.uuid4().hex
-        hashed_password = hashlib.sha512(user.password + salt).hexdigest()
+    def create_user(self, user: schemas.UserCreate):
+        salt = uuid.uuid4().hex.encode()
+        password = user.password.encode()
+        hashed_password = hashlib.sha512(password + salt).hexdigest()
         db_user = models.User(email=user.email, hashed_password=hashed_password)
-        db.add(db_user)
-        db.commit()
-        db.refresh(db_user)
+        self.db.add(db_user)
+        self.db.commit()
+        self.db.refresh(db_user)
         return db_user

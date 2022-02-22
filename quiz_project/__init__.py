@@ -1,2 +1,3 @@
-from .conf import DATABASE_URL
-import database
+from . import conf, database
+from .conf import *
+from .database import *
