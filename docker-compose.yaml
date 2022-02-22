@@ -1,7 +1,7 @@
 version: "3"
 
 volumes:
-   _postgres_data:
+  _postgres_data:
 
 services:
   db:
@@ -43,5 +43,3 @@ services:
 networks:
   backend:
     driver: bridge
-
-    
