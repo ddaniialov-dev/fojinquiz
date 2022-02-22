@@ -1,7 +1,7 @@
 version: "3"
 
 volumes:
-   _postgres_data:
+  _postgres_data:
 
 services:
   db:
@@ -21,8 +21,7 @@ services:
     depends_on:
      - db
     ports:
-      - "80:8000"
+      - "80:80"
     volumes:
       - ./:/code
-    command: uvicorn main:app --reload --host 0.0.0.0
-    
+    command: uvicorn main:app --reload --host 0.0.0.0 --port 80
