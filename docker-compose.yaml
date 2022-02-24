@@ -24,11 +24,14 @@ services:
      - .env
     depends_on:
      - db
-    ports:
-      - "8000:8000"
     volumes:
       - ./:/code
+    expose:
+      - "8000"
     command: uvicorn main:app --reload --host 0.0.0.0
+    labels:
+      - traefik.port=80
+      - traefik.http.routers.fastapi.rule=Host(`localhost`)
   traefik:
     container_name: quiz_traefik
     image: traefik:v2.2
