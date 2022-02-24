@@ -1,11 +1,12 @@
 from fastapi import FastAPI
 
-from user_app import models, views
+
+import user_app
 from quiz_project import database
 
-models.Base.metadata.create_all(bind=database.engine)
+database.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI()
 
 
-app.include_router(views.router)
+app.include_router(user_app.views.router)

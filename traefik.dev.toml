@@ -1,7 +1,7 @@
 # listen on port 80
 [entryPoints]
 [entryPoints.web]
-address = ":8080"
+address = ":80"
 
 # Traefik dashboard over http
 [api]

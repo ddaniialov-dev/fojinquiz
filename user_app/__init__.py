@@ -1,4 +1,4 @@
-from . import models, schemas, crud
+from . import models, schemas, crud, views
 
 from .models import *
 from .crud import *
