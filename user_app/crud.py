@@ -1,29 +1,40 @@
-from sqlalchemy.orm import Session
+import uuid
+import hashlib
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
-from user_app import models, schemas
-import hashlib, uuid
+from .models import User
+from .schemas import UserCreate
 
 
 class UserManager:
     
-    def __init__(self, database: Session):
+    def __init__(self, database: AsyncSession):
         self.db = database
 
-    def get_user(self, user_id:int):
-        return self.db.query(models.User).filter(models.User.id == user_id).first()
+    async def get_user(self, user_id:int):
+        query = select(User).where(User.id == user_id)
+        response = await self.db.execute(query)
+        return response.first()
 
-    def get_user_by_email(self, email: str):
-        return self.db.query(models.User).filter(models.User.email == email).first()
-    
-    def get_users(self, skip: int = 0, limit: int = 100):
-        return self.db.query(models.User).offset(skip).limit(limit).all()
-    
-    def create_user(self, user: schemas.UserCreate):
+    async def get_user_by_username(self, username: str):
+        query = select(User).where(User.username == username)
+        response = await self.db.execute(query)
+        return response.first()
+
+    async def get_users(self, skip: int = 0, limit: int = 100):
+        query = select(User).offset(skip).limit(limit)
+        response = await self.db.execute(query)
+        return response.all()
+
+    async def create_user(self, user: UserCreate):
         salt = uuid.uuid4().hex.encode()
         password = user.password.encode()
         hashed_password = hashlib.sha512(password + salt).hexdigest()
-        db_user = models.User(email=user.email, hashed_password=hashed_password)
+        db_user = User(email=user.username, hashed_password=hashed_password)
+
         self.db.add(db_user)
-        self.db.commit()
-        self.db.refresh(db_user)
+        await self.db.commit()
+        await self.db.refresh(db_user)
+
         return db_user
