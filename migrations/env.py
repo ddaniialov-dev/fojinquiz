@@ -8,12 +8,14 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from alembic import context
 
 from quiz_project import Base
+from quiz_project.conf import DATABASE_URL
 
 from user_app.models import *
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -43,7 +45,7 @@ def run_migrations_offline():
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = DATABASE_URL
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -67,11 +69,12 @@ async def run_migrations_online():
 
     In this scenario we need to create an Engine
     and associate a connection with the context.
-
     """
+    alembic_config = config.get_section(config.config_ini_section)
+    alembic_config['sqlalchemy.url'] = DATABASE_URL
     connectable = AsyncEngine(
         engine_from_config(
-            config.get_section(config.config_ini_section),
+            alembic_config,
             prefix="sqlalchemy.",
             poolclass=pool.NullPool,
             future=True,
