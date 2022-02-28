@@ -9,5 +9,3 @@ DATABASE = {
 }
 
 DATABASE_URL = f"postgresql+asyncpg://{DATABASE['USER']}:{DATABASE['PASSWORD']}@{DATABASE['HOST']}/{DATABASE['NAME']}"
-
-DEFAULT_USER_MODEL = "User"
