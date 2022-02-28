@@ -13,7 +13,10 @@ Base = declarative_base()
 
 
 async def get_database_session():
+    session_instance = session_local()
+
     async with engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
 
-    yield session_local()
+    async with session_instance as session:
+        yield session

@@ -31,7 +31,7 @@ class UserManager:
         salt = uuid.uuid4().hex.encode()
         password = user.password.encode()
         hashed_password = hashlib.sha512(password + salt).hexdigest()
-        db_user = User(email=user.username, hashed_password=hashed_password)
+        db_user = User(username=user.username, hashed_password=hashed_password)
 
         self.db.add(db_user)
         await self.db.commit()
