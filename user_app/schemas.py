@@ -1,17 +1,15 @@
-from typing import List, Optional
-
 from pydantic import BaseModel
 
 
-class UserBase(BaseModel):
-    email: str
+class BaseUser(BaseModel):
+    username: str
     
 
-class UserCreate(UserBase):
+class UserCreate(BaseUser):
     password: str
 
 
-class User(UserBase):
+class User(BaseUser):
     id: int
     is_active: bool
     
