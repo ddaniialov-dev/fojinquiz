@@ -3,6 +3,7 @@ from typing import Type
 from fastapi import Request, FastAPI
 from fastapi import Depends, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
 
 from pydantic import BaseModel
@@ -39,9 +40,9 @@ async def jwt_exception_handler(request: Request, exc: Type[AuthJWTException]):
 
 @app.post('/login/')
 async def login(
-        user: UserCreate,
-        auth: AuthJWT = Depends(),
-        database_session: AsyncSession = Depends(get_database_session)
+    user: UserCreate,
+    auth: AuthJWT = Depends(),
+    database_session: AsyncSession = Depends(get_session)
 ):
     user_manager = UserManager(database_session)
     if not await user_manager.check_user_credentials(user.username, user.password):
@@ -53,7 +54,7 @@ async def login(
 @app.post("/register/")
 async def register(
     user: UserCreate,
-    db_session: AsyncSession = Depends(get_session)
+    database_session: AsyncSession = Depends(get_session)
 ):
     user_manager = UserManager(database_session)
 
@@ -66,7 +67,9 @@ async def register(
 
 
 @app.post('/refresh/')
-async def refresh(auth: AuthJWT = Depends()):
+async def refresh(
+        auth: AuthJWT = Depends()
+):
     auth.jwt_refresh_token_required()
 
     user = auth.get_jwt_subject()
