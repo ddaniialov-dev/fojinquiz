@@ -1,12 +1,12 @@
 from sqlalchemy import Boolean, Column, Integer, String
 
-from quiz_project.database import Base
+from quiz_project.behaviours.base_model import BaseModel
 
 
-class User(Base):
+
+class User(BaseModel):
     __tablename__ = "users"
-    
-    id = Column(Integer, primary_key=True, index=True)
+
     username = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)

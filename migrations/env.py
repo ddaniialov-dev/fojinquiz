@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from alembic import context
 
 from user_app.models import *
+from test_app.models import *
 
 from quiz_project import Base, DATABASE_URL
 
