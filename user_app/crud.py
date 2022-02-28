@@ -10,7 +10,6 @@ from quiz_project.behaviours.base_manager import BaseManager
 
 
 class UserManager(BaseManager):
-
     async def check_user_credentials(self, username: str, password: str):
         salt = uuid5(NAMESPACE_X500, username).hex.encode()
         hashed_password = hashlib.sha512(password.encode() + salt).hexdigest()
@@ -40,9 +39,6 @@ class UserManager(BaseManager):
         password = user.password.encode()
         hashed_password = hashlib.sha512(password + salt).hexdigest()
         db_user = User(username=user.username, hashed_password=hashed_password)
-
-        self.db.add(db_user)
-        await self.db.commit()
-        await self.db.refresh(db_user)
+        await self.save(db_user)
 
         return db_user
