@@ -18,9 +18,15 @@ services:
   migrations:
     container_name: quiz_migrations
     build: .
+    networks:
+      - backend
     profiles:
       - migrate
+    volumes:
+      - ./:/code/
     command: alembic upgrade head
+    depends_on:
+      - db
   web:
     container_name: quiz_web
     build: .
