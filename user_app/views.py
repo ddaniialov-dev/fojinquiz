@@ -1,15 +1,12 @@
-from fastapi import  Request, FastAPI
-from fastapi import Depends, HTTPException
+from fastapi import  Depends, Request, FastAPI
+from fastapi import HTTPException
 from fastapi.responses import JSONResponse
-from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from quiz_project import get_database_session
+from quiz_project.database import get_session
 from user_app import schemas
 from user_app.crud import UserManager
-
-from .models import User
 from .schemas import UserCreate
 
 
@@ -24,8 +21,6 @@ async def jwt_exception_handler(request: Request, exc: AuthJWTException):
             'detail': exc.message
         }
     )
-
-
 # @app.post('/login/')
 # async def login(user: User, auth: AuthJWT = Depends()):
 #     pass
@@ -34,9 +29,9 @@ async def jwt_exception_handler(request: Request, exc: AuthJWTException):
 @app.post("/register/", response_model=schemas.User)
 async def create_user(
     user: UserCreate,
-    database_session: AsyncSession = Depends(get_database_session)
+    db_session: AsyncSession = Depends(get_session)
 ):
-    user_manager = UserManager(database_session)
+    user_manager = UserManager(db_session)
     db_user = await user_manager.get_user_by_username(username=user.username)
 
     if db_user:
