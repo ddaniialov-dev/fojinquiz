@@ -15,6 +15,12 @@ services:
       - .env
     ports:
       - "5432:5432"
+  migrations:
+    container_name: quiz_migrations
+    build: .
+    profiles:
+      - migrate
+    command: alembic upgrade head
   web:
     container_name: quiz_web
     build: .
