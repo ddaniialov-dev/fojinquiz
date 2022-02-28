@@ -1,11 +1,13 @@
+from typing import Type
+
 from fastapi import Request, FastAPI
 from fastapi import Depends, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
 
-from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from quiz_project import get_database_session
 
@@ -26,7 +28,7 @@ def get_config():
 
 
 @app.exception_handler(AuthJWTException)
-async def jwt_exception_handler(request: Request, exc: AuthJWTException):
+async def jwt_exception_handler(request: Request, exc: Type[AuthJWTException]):
     return JSONResponse(
         status_code=exc.status_code,
         content={
@@ -36,9 +38,14 @@ async def jwt_exception_handler(request: Request, exc: AuthJWTException):
 
 
 @app.post('/login/')
-async def login(user: UserCreate, auth: AuthJWT = Depends()):
-    if user.username:
-        pass
+async def login(
+        user: UserCreate,
+        auth: AuthJWT = Depends(),
+        database_session: AsyncSession = Depends(get_database_session)
+):
+    user_manager = UserManager(database_session)
+    if not await user_manager.check_user_credentials(user.username, user.password):
+        raise HTTPException(status_code=401, detail='username/password error')
 
     return await obtain_auth_tokens(user, auth)
 
@@ -51,7 +58,7 @@ async def register(
     user_manager = UserManager(database_session)
 
     if await user_manager.get_user_by_username(username=user.username):
-        raise HTTPException(status_code=400, detail="User already registered")
+        raise HTTPException(status_code=400, detail='User already registered')
 
     user = await user_manager.create_user(user=user)
     token_pair = await obtain_auth_tokens(user, AuthJWT())
