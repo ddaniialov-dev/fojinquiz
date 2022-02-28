@@ -3,13 +3,13 @@ from typing import Type
 from fastapi import Request, FastAPI
 from fastapi import Depends, HTTPException
 from fastapi.responses import JSONResponse
-from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
 
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from quiz_project import get_database_session
+
+from quiz_project import get_session
 
 from .crud import UserManager
 from .schemas import UserCreate
@@ -53,7 +53,7 @@ async def login(
 @app.post("/register/")
 async def register(
     user: UserCreate,
-    database_session: AsyncSession = Depends(get_database_session)
+    db_session: AsyncSession = Depends(get_session)
 ):
     user_manager = UserManager(database_session)
 
