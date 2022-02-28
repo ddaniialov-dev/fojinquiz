@@ -1,10 +1,6 @@
-from typing import Type
-
-from fastapi import Request, FastAPI
+from fastapi import APIRouter
 from fastapi import Depends, HTTPException
-from fastapi.responses import JSONResponse
 from fastapi_jwt_auth import AuthJWT
-from fastapi_jwt_auth.exceptions import AuthJWTException
 
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,9 +10,13 @@ from quiz_project import get_session
 
 from .crud import UserManager
 from .schemas import UserCreate
+from .dependencies import token_header
 
 
-app = FastAPI()
+router = APIRouter(
+    tags=['auth'],
+    dependencies=[Depends(token_header)]
+)
 
 
 class Settings(BaseModel):
@@ -28,17 +28,7 @@ def get_config():
     return Settings()
 
 
-@app.exception_handler(AuthJWTException)
-async def jwt_exception_handler(request: Request, exc: Type[AuthJWTException]):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
-            'detail': exc.message
-        }
-    )
-
-
-@app.post('/login/')
+@router.post('/login/')
 async def login(
     user: UserCreate,
     auth: AuthJWT = Depends(),
@@ -46,12 +36,14 @@ async def login(
 ):
     user_manager = UserManager(database_session)
     if not await user_manager.check_user_credentials(user.username, user.password):
-        raise HTTPException(status_code=401, detail='username/password error')
+        raise HTTPException(
+            status_code=401, detail='username/password error'
+        )
 
     return await obtain_auth_tokens(user, auth)
 
 
-@app.post("/register/")
+@router.post("/register/")
 async def register(
     user: UserCreate,
     database_session: AsyncSession = Depends(get_session)
@@ -59,14 +51,16 @@ async def register(
     user_manager = UserManager(database_session)
 
     if await user_manager.get_user_by_username(username=user.username):
-        raise HTTPException(status_code=400, detail='User already registered')
+        raise HTTPException(
+            status_code=400, detail='User already registered'
+        )
 
     user = await user_manager.create_user(user=user)
     token_pair = await obtain_auth_tokens(user, AuthJWT())
     return token_pair
 
 
-@app.post('/refresh/')
+@router.post('/refresh/')
 async def refresh(
         auth: AuthJWT = Depends()
 ):
@@ -88,4 +82,3 @@ async def obtain_auth_tokens(user: UserCreate, auth: AuthJWT) -> dict:
         'access_token': access_token,
         'refresh_token': refresh_token
     }
-
