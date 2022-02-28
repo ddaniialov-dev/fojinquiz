@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
-from user_app.views import app as user_app
+from user_app.views import router as user_app_router
 
 app = FastAPI()
 
 
-app.mount('/', user_app)
+app.include_router(user_app_router)
