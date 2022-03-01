@@ -1,0 +1,6 @@
+__pycache__
+README.md
+.venv/
+venv/
+.env.example
+.idea/
