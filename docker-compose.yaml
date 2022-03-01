@@ -40,7 +40,7 @@ services:
       - ./:/code
     expose:
       - "8000"
-    command: uvicorn main:app --reload --host 0.0.0.0
+    command: python -m uvicorn main:app --reload --host 0.0.0.0
     labels:
       - traefik.port=80
       - traefik.http.routers.fastapi.rule=Host(`localhost`)
