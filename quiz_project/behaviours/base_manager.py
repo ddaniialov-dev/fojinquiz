@@ -1,8 +1,13 @@
+from abc import ABC
+from typing_extensions import Self
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from quiz_project.behaviours.base_model import BaseModel
 
-class BaseManager:
-    async def __init__(self, database: AsyncSession):
+
+class AbstractBaseManager(ABC):
+    
+    def __init__(self, database: AsyncSession):
         self.db = database
     
     async def before_save(self, *args, **kwargs):
@@ -10,8 +15,8 @@ class BaseManager:
 
     async def after_save(self, *args, **kwargs):
         pass
-
-    async def save(self, obj, commit=True):
+    
+    async def save(self, obj, commit: bool = True):
         await self.before_save()
         self.db.add(self)
         if commit:
@@ -35,7 +40,7 @@ class BaseManager:
         await self.db.commit()
         await self.after_update(*args, **kwargs)
 
-    async def delete(self, commit=True):
+    async def delete(self, commit: bool = True):
         await self.db.delete(self)
         if commit:
             await self.db.commit()
