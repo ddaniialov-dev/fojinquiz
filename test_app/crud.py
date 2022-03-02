@@ -1,4 +1,4 @@
-from quiz_project.behaviours.base_manager import BaseManager
+from quiz_project.behaviours import AbstractBaseManager
 
-class TestManager(BaseManager):
+class TestManager(AbstractBaseManager):
     pass

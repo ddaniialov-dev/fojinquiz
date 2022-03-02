@@ -12,3 +12,4 @@ class User(BaseModel):
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
     tests = relationship("Test")
+    sessions = relationship("Session")

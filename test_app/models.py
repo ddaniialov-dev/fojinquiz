@@ -1,8 +1,8 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, Text
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, DateTime, Text, Table
 from sqlalchemy.orm import relationship
 
 
-from quiz_project.behaviours.base_model import BaseModel
+from quiz_project.behaviours import BaseModel
 from quiz_project.utils import get_current_time
 
 class Test(BaseModel):
@@ -19,17 +19,34 @@ class Question(BaseModel):
     
     test = Column(Integer, ForeignKey("tests.id"))
     text = Column(Text)
+    answers = relationship("Answer")
 
 
 class Answer(BaseModel):
     __tablename__ = "answers"
     
-    question = Column(Integer, ForeignKey("questions"))
+    question = Column(Integer, ForeignKey("questions.id"))
     text = Column(Text)
     is_true = Column(Boolean, default=True)
+    user_answers = relationship("user_answers.id")
 
 
 class UserAnswer(BaseModel):
     __tablename__ = "user_answers"
     
-    answer = Column(Integer, ForeignKey())
+    answer = Column(Integer, ForeignKey("answers.id"))
+    session = Column(Integer, ForeignKey("sessions.id"))
+
+
+class Session(BaseModel):
+    __tablename__ = "sessions"
+    
+    finished_date = Column(DateTime, nullable=True)
+    user = Column(Integer, ForeignKey("users.id"))
+    test = Column(Integer, ForeignKey("tests.id"))
+
+
+association_table = Table('association', BaseModel.metadata,
+    Column('question_id', ForeignKey('questions.id')),
+    Column('session_id', ForeignKey('sessions.id'))
+)

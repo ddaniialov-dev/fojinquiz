@@ -6,10 +6,10 @@ from sqlalchemy.future import select
 
 from .models import User
 from .schemas import UserCreate
-from quiz_project.behaviours.base_manager import BaseManager
+from quiz_project.behaviours import AbstractBaseManager
 
 
-class UserManager(BaseManager):
+class UserManager(AbstractBaseManager):
     async def check_user_credentials(self, username: str, password: str):
         salt = uuid5(NAMESPACE_X500, username).hex.encode()
         hashed_password = hashlib.sha512(password.encode() + salt).hexdigest()
