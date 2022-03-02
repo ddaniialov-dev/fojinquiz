@@ -3,17 +3,13 @@ from uuid import NAMESPACE_X500, uuid5
 
 from sqlalchemy import and_
 from sqlalchemy.future import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from .models import User
 from .schemas import UserCreate
+from quiz_project.behaviours import AbstractBaseManager
 
 
-class UserManager:
-    
-    def __init__(self, database: AsyncSession):
-        self.db = database
-
+class UserManager(AbstractBaseManager):
     async def check_user_credentials(self, username: str, password: str):
         salt = uuid5(NAMESPACE_X500, username).hex.encode()
         hashed_password = hashlib.sha512(password.encode() + salt).hexdigest()
@@ -43,9 +39,6 @@ class UserManager:
         password = user.password.encode()
         hashed_password = hashlib.sha512(password + salt).hexdigest()
         db_user = User(username=user.username, hashed_password=hashed_password)
-
-        self.db.add(db_user)
-        await self.db.commit()
-        await self.db.refresh(db_user)
+        await self.save(db_user)
 
         return db_user
