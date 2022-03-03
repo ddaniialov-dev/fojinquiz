@@ -27,6 +27,7 @@ services:
     command: alembic upgrade head
     depends_on:
       - db
+      - web
   web:
     container_name: quiz_web
     build: .
