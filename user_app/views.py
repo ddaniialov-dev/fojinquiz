@@ -53,11 +53,13 @@ async def register(
             raise HTTPException(
                 status_code=400, detail='User already registered'
             )
-
         user = await user_manager.create_user(user=user)
         token_pair = await obtain_auth_tokens(user, AuthJWT())
         return token_pair
 
+    raise HTTPException(
+                status_code=400, detail='Bad Request'
+            )
 
 @router.post('/refresh/')
 async def refresh(
