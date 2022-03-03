@@ -1,8 +1,7 @@
-from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy import Boolean, Column, String
 from sqlalchemy.orm import relationship
 
-from quiz_project.behaviours.base_model import BaseModel
-
+from quiz_project import BaseModel
 
 
 class User(BaseModel):
