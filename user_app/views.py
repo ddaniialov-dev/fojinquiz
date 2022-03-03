@@ -35,6 +35,7 @@ async def login(
     database_session: AsyncSession = Depends(get_session)
 ):
     user_manager = UserManager(database_session)
+
     if not await user_manager.check_user_credentials(user.username, user.password):
         raise HTTPException(
             status_code=401, detail='username/password error'
