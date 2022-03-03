@@ -16,13 +16,12 @@ class AbstractBaseManager(ABC):
         return self
 
     async def __aexit__(self, exception_type, exception_value, exception_traceback):
-        match bool(exception_type):
-            case False:
-                await self._database_session.commit()
-                await self._database_session.close()
-            case True:
-                await self._database_session.rollback()
-                return True
+        if not exception_type and not exception_traceback:
+            await self._database_session.commit()
+            await self._database_session.close()
+        else:
+            await self._database_session.rollback()
+
     async def _before_create(self, *args, **kwargs):
         pass
 
