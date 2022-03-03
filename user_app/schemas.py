@@ -1,17 +1,14 @@
-from pydantic import BaseModel
+from quiz_project.behaviours import BaseSchema
 
 
-class BaseUser(BaseModel):
+class BaseUser(BaseSchema):
     username: str
-    
+
 
 class UserCreate(BaseUser):
     password: str
 
 
-class User(BaseUser):
-    id: int
+class UserSchema(BaseUser):
+    id: int = None
     is_active: bool
-    
-    class Config:
-        orm_mode = True

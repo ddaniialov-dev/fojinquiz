@@ -1,11 +1,14 @@
-from sqlalchemy import Column, Integer, DateTime
+from importlib.metadata import metadata
+from sqlalchemy import Column, Integer, DateTime, MetaData
 
 from quiz_project import Base
-from quiz_project.utils import get_current_time
+from quiz_project import get_current_time
 
 
-class BaseModel(Base):
+class AbstractBaseModel(Base):
     __abstract__ = True
+    metadata = MetaData()
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     created_at = Column(DateTime(timezone=True), default=get_current_time)
-    updated_at = Column(DateTime(timezone=True), nullable=True, onupdate=get_current_time)
+    updated_at = Column(DateTime(timezone=True), onupdate=get_current_time)

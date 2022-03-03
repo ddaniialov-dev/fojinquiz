@@ -10,12 +10,11 @@ from quiz_project import get_session
 
 from .crud import UserManager
 from .schemas import UserCreate
-from .dependencies import token_header
 
 
 router = APIRouter(
     tags=['auth'],
-    dependencies=[Depends(token_header)]
+    # dependencies=[Depends(token_header)]
 )
 
 
@@ -49,16 +48,15 @@ async def register(
     user: UserCreate,
     database_session: AsyncSession = Depends(get_session)
 ):
-    user_manager = UserManager(database_session)
+    async with UserManager(database_session) as user_manager:
+        if await user_manager.get_user_by_username(username=user.username):
+            raise HTTPException(
+                status_code=400, detail='User already registered'
+            )
 
-    if await user_manager.get_user_by_username(username=user.username):
-        raise HTTPException(
-            status_code=400, detail='User already registered'
-        )
-
-    user = await user_manager.create_user(user=user)
-    token_pair = await obtain_auth_tokens(user, AuthJWT())
-    return token_pair
+        user = await user_manager.create_user(user=user)
+        token_pair = await obtain_auth_tokens(user, AuthJWT())
+        return token_pair
 
 
 @router.post('/refresh/')
