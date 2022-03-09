@@ -1,6 +1,6 @@
-from sqlalchemy.future import select
+from sqlalchemy import delete, select
 
-from quiz_project.behaviours import AbstractBaseManager
+from quiz_project import AbstractBaseManager
 
 from test_app.models import Test
 from test_app.schemas import TestSchema
@@ -25,10 +25,9 @@ class TestManager(AbstractBaseManager):
 
     async def create_test(self, test: TestSchema):
         test_object = Test(holder=test.holder, published=test.published)
-        data = await self.create(test_object)
-        return data.id
+        await self.create(test_object)
+        return test_object.id
 
     async def delete_test(self, test_id: int):
-        query = select(Test).where(Test.id == test_id).first()
-        test_object = await self._database_session.execute(query)
-        await self.delete(test_object)
+        query = delete(Test).where(Test.id == test_id)
+        return await self._database_session.execute(query)

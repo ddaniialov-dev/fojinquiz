@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi_jwt_auth import AuthJWT
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,7 +10,7 @@ from quiz_project import JwtAccessRequired, get_session, token_header
 from .crud import TestManager
 
 router = APIRouter(
-    prefix="/tests",
+    prefix='/tests',
     tags=['tests'],
     dependencies=[Depends(token_header)]
 )
@@ -23,31 +23,40 @@ async def get_tests(
     database_session: AsyncSession = Depends(get_session)
 ):
     async with TestManager(database_session) as test_manager:
-        data = await test_manager.get_tests()
-        return data
+        tests = await test_manager.get_tests()
 
-    raise HTTPException(
-        status_code=404, detail='data not found'
-    )
+        if not tests:
+            raise HTTPException(
+                status_code=404, detail='data not found'
+            )
+
+    return tests
 
 
 @router.post('/', status_code=201)
-# @JwtAccessRequired()
+@JwtAccessRequired()
 async def create_test(
     test: TestSchema,
     auth: AuthJWT = Depends(),
     database_session: AsyncSession = Depends(get_session)
 ):
     async with TestManager(database_session) as test_manager:
-        await test_manager.create_test(test)
+        record_id = await test_manager.create_test(test)
+
+        if not record_id:
+            return HTTPException(
+                status_code=400, detail='test wat not created'
+            )
+
+    return record_id
 
 
-@router.delete('/', status_code=204)
-# @JwtAccessRequired()
+@router.delete('/{test_id}/', status_code=204)
+@JwtAccessRequired()
 async def delete_test(
-    test: TestSchema,
+    test_id: int,
     auth: AuthJWT = Depends(),
     database_session: AsyncSession = Depends(get_session)
-):
+) -> None:
     async with TestManager(database_session) as test_manager:
-        await test_manager.delete_test(test.id)
+        await test_manager.delete_test(test_id)

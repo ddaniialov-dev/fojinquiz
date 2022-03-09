@@ -1,12 +1,10 @@
-from abc import ABC
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .base_model import AbstractBaseModel
 
 
-class AbstractBaseManager(ABC):
-    
+class AbstractBaseManager:
+
     def __init__(self, database: AsyncSession):
         self._database_session = database
 
@@ -32,6 +30,7 @@ class AbstractBaseManager(ABC):
         await self._before_create()
 
         self._database_session.add(obj)
+        await self._database_session.commit()
 
         await self._after_create()
 
@@ -45,7 +44,3 @@ class AbstractBaseManager(ABC):
         await self._before_update(*args, **kwargs)
         await self._database_session.commit()
         await self._after_update(*args, **kwargs)
-
-    async def delete(self, obj: AbstractBaseModel):
-        await self._database_session.delete(obj)
-        await self._database_session.commit()

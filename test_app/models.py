@@ -1,7 +1,6 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, DateTime, Text, Table, String
 from sqlalchemy.orm import relationship
 
-
 from quiz_project.behaviours import AbstractBaseModel
 from quiz_project.utils import get_current_time
 
@@ -12,7 +11,7 @@ class Test(AbstractBaseModel):
     title = Column(String(256))
     holder = Column(Integer, ForeignKey("users.id"))
     published = Column(Boolean)
-    published_date = Column(DateTime, default=get_current_time)
+    published_date = Column(DateTime(timezone=True), default=get_current_time)
     questions = relationship("Question")
 
 
@@ -43,12 +42,13 @@ class UserAnswer(AbstractBaseModel):
 class Session(AbstractBaseModel):
     __tablename__ = "sessions"
 
-    finished_date = Column(DateTime, nullable=True)
+    finished_date = Column(DateTime(timezone=True), nullable=True)
     user = Column(Integer, ForeignKey("users.id"))
     test = Column(Integer, ForeignKey("tests.id"))
 
 
-association_table = Table('association', AbstractBaseModel.metadata,
+association_table = Table(
+    'association', AbstractBaseModel.metadata,
     Column('question_id', ForeignKey('questions.id')),
     Column('session_id', ForeignKey('sessions.id'))
 )
