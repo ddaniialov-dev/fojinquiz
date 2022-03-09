@@ -1,4 +1,3 @@
-from importlib.metadata import metadata
 from sqlalchemy import Column, Integer, DateTime, MetaData
 
 from quiz_project import Base

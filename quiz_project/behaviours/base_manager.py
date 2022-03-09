@@ -46,8 +46,6 @@ class AbstractBaseManager(ABC):
         await self._database_session.commit()
         await self._after_update(*args, **kwargs)
 
-    async def delete(self, commit: bool = True):
-        await self._database_session.delete(self)
-
-        if commit:
-            await self._database_session.commit()
+    async def delete(self, obj: AbstractBaseModel):
+        await self._database_session.delete(obj)
+        await self._database_session.commit()

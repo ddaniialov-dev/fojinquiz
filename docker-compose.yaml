@@ -37,6 +37,7 @@ services:
      - .env
     depends_on:
      - db
+     - traefik
     volumes:
       - ./:/code
     expose:

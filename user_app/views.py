@@ -33,14 +33,13 @@ async def login(
     auth: AuthJWT = Depends(),
     database_session: AsyncSession = Depends(get_session)
 ):
-    user_manager = UserManager(database_session)
+    async with UserManager(database_session) as user_manager:
+        if not await user_manager.check_user_credentials(user.username, user.password):
+            raise HTTPException(
+                status_code=401, detail='username/password error'
+            )
 
-    if not await user_manager.check_user_credentials(user.username, user.password):
-        raise HTTPException(
-            status_code=401, detail='username/password error'
-        )
-
-    return await obtain_auth_tokens(user, auth)
+        return await obtain_auth_tokens(user, auth)
 
 
 @router.post("/register/")
@@ -78,8 +77,8 @@ async def refresh(
 
 
 async def obtain_auth_tokens(user: UserCreate, auth: AuthJWT) -> dict:
-    refresh_token = auth.create_refresh_token(subject=user.username)
-    access_token = auth.create_access_token(subject=user.username)
+    refresh_token = auth.create_refresh_token(subject=user.username, expires_time=False)
+    access_token = auth.create_access_token(subject=user.username, expires_time=False)
 
     return {
         'access_token': access_token,
