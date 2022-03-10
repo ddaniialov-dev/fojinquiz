@@ -1,20 +1,18 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
 from fastapi import Depends, HTTPException
 from fastapi_jwt_auth import AuthJWT
 
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-
 from quiz_project import get_session
 
 from .crud import UserManager
-from .schemas import UserCreate
-
+from .schemas import BaseUser, UserCreate
+from quiz_project import JwtAccessRequired
 
 router = APIRouter(
-    tags=['auth'],
-    # dependencies=[Depends(token_header)]
+    tags=['auth']
 )
 
 
@@ -64,7 +62,7 @@ async def register(
 
 @router.post('/refresh/')
 async def refresh(
-        auth: AuthJWT = Depends()
+    auth: AuthJWT = Depends()
 ):
     auth.jwt_refresh_token_required()
 
@@ -75,6 +73,15 @@ async def refresh(
         'access_token': new_access_token
     }
 
+@router.get('/me/', response_model=BaseUser)
+@JwtAccessRequired()
+async def get_me(
+    auth: AuthJWT = Depends(),
+    database_session: AsyncSession = Depends(get_session)
+):
+    async with UserManager(database_session) as user_manager:
+        user = await user_manager.get_user_by_username(username=auth.get_jwt_subject())
+    return BaseUser.from_orm(user[0])
 
 async def obtain_auth_tokens(user: UserCreate, auth: AuthJWT) -> dict:
     refresh_token = auth.create_refresh_token(subject=user.username, expires_time=False)
