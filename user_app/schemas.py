@@ -1,9 +1,9 @@
-from pydantic import validator
+from pydantic import Field, validator
 from quiz_project.behaviours import BaseSchema
 
 
 class BaseUser(BaseSchema):
-    username: str
+    username: str = Field(None)
 
 
 class UserCreate(BaseUser):
