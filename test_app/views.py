@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import JSONResponse
 from fastapi_jwt_auth import AuthJWT
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,7 +17,11 @@ router = APIRouter(
 )
 
 
-@router.get('/', status_code=200)
+@router.get(
+    '/',
+    status_code=200,
+    response_model=list[TestSchema]
+)
 @JwtAccessRequired()
 async def get_tests(
     auth: AuthJWT = Depends(),
@@ -33,7 +38,11 @@ async def get_tests(
     return tests
 
 
-@router.post('/', status_code=201)
+@router.post(
+    '/',
+    status_code=201,
+    response_model=TestSchema
+)
 @JwtAccessRequired()
 async def create_test(
     test: TestSchema,
@@ -51,7 +60,10 @@ async def create_test(
     return record_id
 
 
-@router.delete('/{test_id}/', status_code=204)
+@router.delete(
+    '/{test_id}/',
+    status_code=204,
+)
 @JwtAccessRequired()
 async def delete_test(
     test_id: int,

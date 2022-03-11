@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Response
-from fastapi import Depends, HTTPException
+from fastapi import APIRouter, status, Depends, HTTPException
+from fastapi.responses import JSONResponse
 from fastapi_jwt_auth import AuthJWT
 
 from pydantic import BaseModel
@@ -25,7 +25,11 @@ def get_config():
     return Settings()
 
 
-@router.post('/login/')
+@router.post(
+    '/login/',
+    response_class=JSONResponse,
+    status_code=status.HTTP_200_OK,
+)
 async def login(
     user: UserCreate,
     auth: AuthJWT = Depends(),
@@ -40,7 +44,11 @@ async def login(
         return await obtain_auth_tokens(user, auth)
 
 
-@router.post("/register/")
+@router.post(
+    "/register/",
+    response_class=JSONResponse,
+    status_code=status.HTTP_201_CREATED
+)
 async def register(
     user: UserCreate,
     database_session: AsyncSession = Depends(get_session)
@@ -60,7 +68,11 @@ async def register(
     )
 
 
-@router.post('/refresh/')
+@router.post(
+    '/refresh/',
+    response_class=JSONResponse,
+    status_code=status.HTTP_201_CREATED
+)
 async def refresh(
     auth: AuthJWT = Depends()
 ):
@@ -73,15 +85,21 @@ async def refresh(
         'access_token': new_access_token
     }
 
-@router.get('/me/', response_model=BaseUser)
+
+@router.get(
+    '/me/',
+    response_model=BaseUser,
+    status_code=status.HTTP_200_OK
+)
 @JwtAccessRequired()
 async def get_me(
     auth: AuthJWT = Depends(),
-    database_session: AsyncSession = Depends(get_session)
+    database_session: AsyncSession = Depends(get_session),
 ):
     async with UserManager(database_session) as user_manager:
         user = await user_manager.get_user_by_username(username=auth.get_jwt_subject())
     return BaseUser.from_orm(user[0])
+
 
 async def obtain_auth_tokens(user: UserCreate, auth: AuthJWT) -> dict:
     refresh_token = auth.create_refresh_token(subject=user.username, expires_time=False)
