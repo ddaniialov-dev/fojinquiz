@@ -31,9 +31,9 @@ def get_config():
     status_code=status.HTTP_200_OK,
 )
 async def login(
-        user: UserCreate,
-        auth: AuthJWT = Depends(),
-        database_session: AsyncSession = Depends(get_session)
+    user: UserCreate,
+    auth: AuthJWT = Depends(),
+    database_session: AsyncSession = Depends(get_session)
 ):
     async with UserManager(database_session) as user_manager:
         if not await user_manager.check_user_credentials(user.username, user.password):
@@ -50,8 +50,8 @@ async def login(
     status_code=status.HTTP_201_CREATED
 )
 async def register(
-        user: UserCreate,
-        database_session: AsyncSession = Depends(get_session)
+    user: UserCreate,
+    database_session: AsyncSession = Depends(get_session)
 ):
     async with UserManager(database_session) as user_manager:
         if await user_manager.get_user_by_username(username=user.username):
@@ -74,7 +74,7 @@ async def register(
     status_code=status.HTTP_201_CREATED
 )
 async def refresh(
-        auth: AuthJWT = Depends()
+    auth: AuthJWT = Depends()
 ):
     auth.jwt_refresh_token_required()
 
@@ -94,7 +94,7 @@ async def refresh(
 @JwtAccessRequired()
 async def get_me(
     auth: AuthJWT = Depends(),
-    database_session: AsyncSession = Depends(get_session),
+    database_session: AsyncSession = Depends(get_session)
 ):
     async with UserManager(database_session) as user_manager:
         user = await user_manager.get_user_by_username(username=auth.get_jwt_subject())

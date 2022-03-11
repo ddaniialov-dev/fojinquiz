@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi_jwt_auth import AuthJWT
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.status import HTTP_204_NO_CONTENT
 
 from test_app.schemas import TestSchema
 
@@ -22,7 +21,7 @@ router = APIRouter(
 @router.get(
     '/',
     status_code=200,
-    response_model=list[TestSchema]
+    response_model=List[TestSchema]
 )
 @JwtAccessRequired()
 async def get_tests(
@@ -71,8 +70,6 @@ async def delete_test(
     test_id: int,
     auth: AuthJWT = Depends(),
     database_session: AsyncSession = Depends(get_session)
-) -> Response:
+):
     async with TestManager(database_session) as test_manager:
         await test_manager.delete_test(test_id)
-
-    return Response(status_code=HTTP_204_NO_CONTENT)

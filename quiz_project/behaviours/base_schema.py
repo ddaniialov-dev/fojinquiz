@@ -1,12 +1,8 @@
-from datetime import datetime
-
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class BaseSchema(BaseModel):
-    id: int = Field(default=None, hidden=True)
-    created_date: datetime = Field(default=None, hidden=True)
-    updated_date: datetime = Field(default=None, hidden=True)
-    
+    id: int
+
     class Config:
         orm_mode = True

@@ -13,17 +13,17 @@ class TestManager(AbstractBaseManager):
     async def get_tests(self) -> List[Test]:
         query = select(Test)
         response = await self._database_session.execute(query)
-        return response.all()
+        return [test[0] for test in response.all()]
     
     async def get_user_tests(self, user_id: int) -> List[Test]:
         query = select(Test).where(Test.holder == user_id)
         response = await self._database_session.execute(query)
-        return response.all()
+        return [test[0] for test in response.all()]
     
     async def get_test(self, test_id: int) -> Test:
         query = select(Test).where(Test.id == test_id)
         response = await self._database_session.execute(query)
-        return response.first()
+        return response[0]
 
     async def create_test(self, test: TestSchema) -> int:
         test_object = Test(holder=test.holder, published=test.published)
