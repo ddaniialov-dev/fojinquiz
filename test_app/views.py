@@ -1,8 +1,10 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import JSONResponse
 from fastapi_jwt_auth import AuthJWT
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.status import HTTP_204_NO_CONTENT
 
 from test_app.schemas import TestSchema
 
@@ -26,7 +28,7 @@ router = APIRouter(
 async def get_tests(
     auth: AuthJWT = Depends(),
     database_session: AsyncSession = Depends(get_session)
-):
+) -> List[TestSchema]:
     async with TestManager(database_session) as test_manager:
         tests = await test_manager.get_tests()
 
@@ -48,12 +50,12 @@ async def create_test(
     test: TestSchema,
     auth: AuthJWT = Depends(),
     database_session: AsyncSession = Depends(get_session)
-):
+) -> int:
     async with TestManager(database_session) as test_manager:
         record_id = await test_manager.create_test(test)
 
         if not record_id:
-            return HTTPException(
+            raise HTTPException(
                 status_code=400, detail='test wat not created'
             )
 
@@ -69,6 +71,8 @@ async def delete_test(
     test_id: int,
     auth: AuthJWT = Depends(),
     database_session: AsyncSession = Depends(get_session)
-) -> None:
+) -> Response:
     async with TestManager(database_session) as test_manager:
         await test_manager.delete_test(test_id)
+
+    return Response(status_code=HTTP_204_NO_CONTENT)
