@@ -10,20 +10,20 @@ class TestManager(AbstractBaseManager):
     
     async def get_tests(self, holder):
         query = select(Test).where(Test.holder == holder.id)
-
-        return await self._database_session.execute(query).all()
+        result = await self._database_session.execute(query)
+        return result.all()
     
     async def get_user_tests(self, user_id: int):
         query = select(Test).where(Test.holder == user_id)
-
-        return await self._database_session.execute(query).all()
+        result = await self._database_session.execute(query)
+        return result.all()
     
     async def get_test(self, holder, test_id: int):
         query = select(Test).where(
             Test.id == test_id and holder.id == Test.holder
             )
-
-        return await self._database_session.execute(query).first()
+        result = await self._database_session.execute(query)
+        result = result.first()
 
     async def create_test(self, test: TestSchema):
         test_object = Test(holder=test.holder, published=test.published)
