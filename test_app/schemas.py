@@ -1,6 +1,6 @@
-from quiz_project.behaviours import BaseSchema
+from pydantic import BaseModel
 
 
-class TestSchema(BaseSchema):
+class TestSchema(BaseModel):
     holder: str | None
     published: bool

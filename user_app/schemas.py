@@ -1,12 +1,14 @@
-from pydantic import Field, validator
-from quiz_project.behaviours import BaseSchema
+from pydantic import validator, BaseModel
 
 
-class BaseUser(BaseSchema):
-    username: str = Field(None)
+class UserGet(BaseModel):
+    id: int
+    username: str
+    is_active: bool
 
 
-class UserCreate(BaseUser):
+class UserCreate(BaseModel):
+    username: str
     password: str
 
     @validator(
@@ -19,10 +21,3 @@ class UserCreate(BaseUser):
         if not value:
             raise ValueError('Can not be used')
         return value
-
-
-class UserSchema(BaseUser):
-    id: int = None
-    is_active: bool
-    
-    
