@@ -1,5 +1,5 @@
 from sqlalchemy import delete, select, update
-
+from sqlalchemy import and_
 from quiz_project import AbstractBaseManager
 
 from test_app.models import Test
@@ -18,12 +18,10 @@ class TestManager(AbstractBaseManager):
         result = await self._database_session.execute(query)
         return result.all()
     
-    async def get_test(self, holder, test_id: int):
-        query = select(Test).where(
-            Test.id == test_id and holder.id == Test.holder
-            )
+    async def get_test(self, test_id: int):
+        query = select(Test).where(Test.id == test_id)
         result = await self._database_session.execute(query)
-        result = result.first()
+        return result.first()
 
     async def create_test(self, test: TestSchema) -> int:
         test_object = Test(holder=test.holder, published=test.published)
@@ -32,14 +30,14 @@ class TestManager(AbstractBaseManager):
 
     async def delete_test(self, holder, test_id: int):
         query = delete(Test).where(
-            Test.id == test_id and holder.id == Test.holder
+            and_(Test.id == test_id, holder.id == Test.holder)
             )
-
         return await self._database_session.execute(query)
     
     async def update_test(self, holder, test_id: int, data):
-        query =  update(Test).where(
-            Test.id==test_id and holder.id == Test.holder
+        query =  update(Test).returning(Test).where(
+            and_(Test.id==test_id, Test.holder == holder.id)
             ).values(**data)
-
-        return self._database_session.execute(query)
+        result =  await self._database_session.execute(query)
+        return result.first()
+    
