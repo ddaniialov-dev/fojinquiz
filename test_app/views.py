@@ -1,17 +1,20 @@
 from typing import List
 
+from fastapi import Response
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 
-from .crud import TestManager
-from quiz_project import (JwtAccessRequired, get_session,
-                          token_header, get_current_user)
-from test_app.schemas import TestGet, TestCreate, TestUpdate
-from test_app.schemas import TestSchema
-from quiz_project import JwtAccessRequired, get_session, token_header, MEDIA_ROOT, save_file
-
-from quiz_project import JwtAccessRequired, get_session, token_header
+from .crud import TestManager, QuestionManager
+from quiz_project import (
+    JwtAccessRequired,
+    get_session,
+    token_header,
+    get_current_user,
+    save_file,
+    MEDIA_ROOT
+)
+from test_app.schemas import GetTest, CreateTest, UpdateTest
 
 
 test_router = APIRouter(
@@ -24,13 +27,13 @@ test_router = APIRouter(
 @test_router.get(
     '/',
     status_code=200,
-    response_model=List[TestGet]
+    response_model=List[GetTest]
 )
 @JwtAccessRequired()
 async def get_user_tests(
     auth: AuthJWT = Depends(),
     database_session: AsyncSession = Depends(get_session)
-) -> List[TestGet]:
+) -> List[GetTest]:
     user = await get_current_user(database_session, auth)
     async with TestManager(database_session) as test_manager:
         tests = await test_manager.get_user_tests(user.id)
@@ -43,16 +46,16 @@ async def get_user_tests(
     return tests
 
 
-@router.get(
+@test_router.get(
     '/all/',
     status_code=200,
-    response_model=List[TestGet]
+    response_model=List[GetTest]
 )
 @JwtAccessRequired()
 async def get_all_tests(
     auth: AuthJWT = Depends(),
     database_session: AsyncSession = Depends(get_session)
-) -> List[TestGet]:
+) -> List[GetTest]:
     async with TestManager(database_session) as test_manager:
         tests = await test_manager.get_tests()
 
@@ -67,11 +70,11 @@ async def get_all_tests(
 @test_router.post(
     '/',
     status_code=201,
-    response_model=TestGet
+    response_model=GetTest
 )
 @JwtAccessRequired()
 async def create_test(
-    test: TestCreate,
+    test: CreateTest,
     auth: AuthJWT = Depends(),
     database_session: AsyncSession = Depends(get_session)
 ) -> int:
@@ -86,7 +89,6 @@ async def create_test(
     return result
 
 
-
 @test_router.delete(
     '/{test_id}/',
     status_code=204,
@@ -96,7 +98,7 @@ async def delete_test(
     test_id: int,
     auth: AuthJWT = Depends(),
     database_session: AsyncSession = Depends(get_session)
-) -> None:
+) -> Response:
     user = await get_current_user(database_session, auth)
     async with TestManager(database_session) as test_manager:
         result = await test_manager.delete_test(user, test_id)
@@ -107,8 +109,9 @@ async def delete_test(
     return Response()
 
 
-@router.get(
+@test_router.get(
     '/{test_id}/',
+    response_model=GetTest,
     status_code=200
 )
 @JwtAccessRequired()
@@ -118,7 +121,7 @@ async def get_test(
    database_session: AsyncSession = Depends(get_session)
 ):
     async with TestManager(database_session) as test_manager:
-        result =  await test_manager.get_test(test_id)
+        result = await test_manager.get_test(test_id)
     
     if not result:
         raise HTTPException(
@@ -127,21 +130,21 @@ async def get_test(
     return result
 
 
-@router.put(
+@test_router.put(
     '/{test_id}/',
-    response_model=TestUpdate,
+    response_model=UpdateTest,
     status_code=200
 )
 async def update_test(
     test_id: int,
-    test: TestUpdate,
+    test: UpdateTest,
     auth: AuthJWT = Depends(),
     database_session: AsyncSession = Depends(get_session)
 ):
     user = await get_current_user(database_session, auth)
     test.holder = user.id
     async with TestManager(database_session) as test_manager:
-        result =  await test_manager.update_test(user, test_id, test.dict())
+        result = await test_manager.update_test(user, test_id, test.dict())
     
     if not result:
         raise HTTPException(

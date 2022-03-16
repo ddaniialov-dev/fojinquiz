@@ -3,7 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class TestGet(BaseModel):
+class GetTest(BaseModel):
     id: int
     holder: int
     published: bool = True
@@ -14,7 +14,7 @@ class TestGet(BaseModel):
         orm_mode = True
 
 
-class TestUpdate(BaseModel):
+class UpdateTest(BaseModel):
     holder: int | None
     title: str | None
     published: bool | None
@@ -23,7 +23,7 @@ class TestUpdate(BaseModel):
         orm_mode = True
 
 
-class TestCreate(BaseModel):
+class CreateTest(BaseModel):
     holder: int = None
     title: str | None = None
     published: bool | None = True

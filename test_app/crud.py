@@ -3,14 +3,13 @@ from typing import List
 from sqlalchemy import delete, select, update, and_
 
 from quiz_project import AbstractBaseManager
-
 from test_app.models import Test, Image
-from test_app.schemas import TestSchema, ImageSchema
-
+from test_app.schemas import ImageSchema, CreateTest
 from user_app.models import User
 
 
 class TestManager(AbstractBaseManager):
+
     async def get_tests(self) -> List[Test]:
         query = select(Test)
         result = await self._database_session.execute(query)
@@ -34,7 +33,7 @@ class TestManager(AbstractBaseManager):
         result = await self._database_session.execute(query)
         return result.first()
 
-    async def create_test(self, test: TestCreate) -> Test:
+    async def create_test(self, test: CreateTest) -> Test:
         test_object = Test(holder=test.holder, published=test.published)
         await self.create(test_object)
         return test_object
@@ -57,7 +56,7 @@ class TestManager(AbstractBaseManager):
             .values(**data)
         )
 
-        result =  await self._database_session.execute(query)
+        result = await self._database_session.execute(query)
         return result.first()
 
 
