@@ -5,7 +5,7 @@ from sqlalchemy import delete, select, update, and_
 from quiz_project import AbstractBaseManager
 from test_app.models import Test, Image
 from test_app.schemas import ImageSchema, CreateTest
-from user_app.models import User
+from user_app import User
 
 
 class TestManager(AbstractBaseManager):
@@ -49,10 +49,10 @@ class TestManager(AbstractBaseManager):
         return result.first()
     
     async def update_test(self, holder: User, test_id: int, data: dict) -> Test:
-        query =  (
+        query = (
             update(Test)
             .returning(Test)
-            .where(and_(Test.id==test_id, Test.holder == holder.id))
+            .where(and_(Test.id == test_id, Test.holder == holder.id))
             .values(**data)
         )
 

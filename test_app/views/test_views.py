@@ -3,18 +3,17 @@ from typing import List
 from fastapi import Response
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException
 
-from .crud import TestManager, QuestionManager
+from ..crud import TestManager
 from quiz_project import (
     JwtAccessRequired,
     get_session,
     token_header,
     get_current_user,
-    save_file,
-    MEDIA_ROOT
 )
 from test_app.schemas import GetTest, CreateTest, UpdateTest
+
 
 
 test_router = APIRouter(
@@ -31,8 +30,8 @@ test_router = APIRouter(
 )
 @JwtAccessRequired()
 async def get_user_tests(
-    auth: AuthJWT = Depends(),
-    database_session: AsyncSession = Depends(get_session)
+        auth: AuthJWT = Depends(),
+        database_session: AsyncSession = Depends(get_session)
 ) -> List[GetTest]:
     user = await get_current_user(database_session, auth)
     async with TestManager(database_session) as test_manager:
@@ -53,8 +52,8 @@ async def get_user_tests(
 )
 @JwtAccessRequired()
 async def get_all_tests(
-    auth: AuthJWT = Depends(),
-    database_session: AsyncSession = Depends(get_session)
+        auth: AuthJWT = Depends(),
+        database_session: AsyncSession = Depends(get_session)
 ) -> List[GetTest]:
     async with TestManager(database_session) as test_manager:
         tests = await test_manager.get_tests()
@@ -74,9 +73,9 @@ async def get_all_tests(
 )
 @JwtAccessRequired()
 async def create_test(
-    test: CreateTest,
-    auth: AuthJWT = Depends(),
-    database_session: AsyncSession = Depends(get_session)
+        test: CreateTest,
+        auth: AuthJWT = Depends(),
+        database_session: AsyncSession = Depends(get_session)
 ) -> int:
     user = await get_current_user(database_session, auth)
     async with TestManager(database_session) as test_manager:
@@ -95,9 +94,9 @@ async def create_test(
 )
 @JwtAccessRequired()
 async def delete_test(
-    test_id: int,
-    auth: AuthJWT = Depends(),
-    database_session: AsyncSession = Depends(get_session)
+        test_id: int,
+        auth: AuthJWT = Depends(),
+        database_session: AsyncSession = Depends(get_session)
 ) -> Response:
     user = await get_current_user(database_session, auth)
     async with TestManager(database_session) as test_manager:
@@ -116,13 +115,13 @@ async def delete_test(
 )
 @JwtAccessRequired()
 async def get_test(
-   test_id: int,
-   auth: AuthJWT = Depends(),
-   database_session: AsyncSession = Depends(get_session)
+        test_id: int,
+        auth: AuthJWT = Depends(),
+        database_session: AsyncSession = Depends(get_session)
 ):
     async with TestManager(database_session) as test_manager:
         result = await test_manager.get_test(test_id)
-    
+
     if not result:
         raise HTTPException(
             status_code=404, detail="data not found"
@@ -136,64 +135,18 @@ async def get_test(
     status_code=200
 )
 async def update_test(
-    test_id: int,
-    test: UpdateTest,
-    auth: AuthJWT = Depends(),
-    database_session: AsyncSession = Depends(get_session)
+        test_id: int,
+        test: UpdateTest,
+        auth: AuthJWT = Depends(),
+        database_session: AsyncSession = Depends(get_session)
 ):
     user = await get_current_user(database_session, auth)
     test.holder = user.id
     async with TestManager(database_session) as test_manager:
         result = await test_manager.update_test(user, test_id, test.dict())
-    
+
     if not result:
         raise HTTPException(
             status_code=404, detail="data not found"
         )
     return result
-
-
-question_router = APIRouter(
-    prefix='/questions',
-    tags=['questions'],
-    dependencies=[Depends(token_header)]
-)
-
-
-@question_router.post(
-    '/questions/'
-)
-@JwtAccessRequired()
-async def get_questions():
-    pass
-
-
-@question_router.post(
-    '/questions/'
-)
-@JwtAccessRequired()
-async def get_questions():
-    pass
-
-
-@question_router.post(
-    '{question_id}/attach_image/'
-)
-@JwtAccessRequired()
-async def save_image(
-    question_id: int,
-    auth: AuthJWT = Depends(),
-    files: List[UploadFile] = File(...),
-    database_session: AsyncSession = Depends(get_session)
-):
-    for file in files:
-        byte_data = await file.read()
-
-        async with QuestionManager(database_session) as test_manager:
-            save_file(MEDIA_ROOT + file.filename, byte_data)
-            image_structure = {
-                'path': file.filename,
-                'content_type': file.content_type,
-                'question': question_id
-            }
-            test_manager.create_image(image_structure)
