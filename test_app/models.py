@@ -21,6 +21,7 @@ class Question(AbstractBaseModel):
     test = Column(Integer, ForeignKey("tests.id"))
     text = Column(Text)
     answers = relationship("Answer")
+    images = relationship("Image")
 
 
 class Answer(AbstractBaseModel):
@@ -45,6 +46,14 @@ class Session(AbstractBaseModel):
     finished_date = Column(DateTime(timezone=True), nullable=True)
     user = Column(Integer, ForeignKey("users.id"))
     test = Column(Integer, ForeignKey("tests.id"))
+
+
+class Image(AbstractBaseModel):
+    __tablename__ = 'images'
+
+    path = Column(Text)
+    content_type = Column(Text)
+    question = Column(Integer, ForeignKey("questions.id"))
 
 
 association_table = Table(

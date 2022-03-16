@@ -4,8 +4,8 @@ from sqlalchemy import delete, select
 
 from quiz_project import AbstractBaseManager
 
-from test_app.models import Test
-from test_app.schemas import TestSchema
+from test_app.models import Test, Image
+from test_app.schemas import TestSchema, ImageSchema
 
 
 class TestManager(AbstractBaseManager):
@@ -33,3 +33,14 @@ class TestManager(AbstractBaseManager):
     async def delete_test(self, test_id: int) -> None:
         query = delete(Test).where(Test.id == test_id)
         await self._database_session.execute(query)
+
+
+class QuestionManager(AbstractBaseManager):
+
+    async def get_questions(self, question):
+        pass
+
+    async def create_image(self, image: ImageSchema) -> int:
+        image_object = Image(**image.dict())
+        await self.create(image_object)
+        return image_object.id
