@@ -11,7 +11,6 @@ class Test(AbstractBaseModel):
     title = Column(String(256))
     holder = Column(Integer, ForeignKey("users.id"))
     published = Column(Boolean)
-    published_date = Column(DateTime(timezone=True), default=get_current_time)
     questions = relationship("Question")
 
 
