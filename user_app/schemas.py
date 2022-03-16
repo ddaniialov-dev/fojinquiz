@@ -6,11 +6,15 @@ class UserGet(BaseModel):
     username: str
     is_active: bool
 
+    class Config:
+        orm_mode = True
 
 class UserCreate(BaseModel):
     username: str
     password: str
 
+    class Config:
+        orm_mode = True
     @validator(
         'username',
         'password',

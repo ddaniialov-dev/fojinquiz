@@ -1,38 +1,64 @@
 from typing import List
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, update, and_
 
 from quiz_project import AbstractBaseManager
 
 from test_app.models import Test, Image
 from test_app.schemas import TestSchema, ImageSchema
 
+from user_app.models import User
+
 
 class TestManager(AbstractBaseManager):
-    
     async def get_tests(self) -> List[Test]:
         query = select(Test)
-        response = await self._database_session.execute(query)
-        return [test[0] for test in response.all()]
+        result = await self._database_session.execute(query)
+        return [result[0] for result in result.all()]
     
     async def get_user_tests(self, user_id: int) -> List[Test]:
-        query = select(Test).where(Test.holder == user_id)
-        response = await self._database_session.execute(query)
-        return [test[0] for test in response.all()]
+        query = (
+            select(Test)
+            .where(Test.holder == user_id)
+        )
+
+        result = await self._database_session.execute(query)
+        return [result[0] for result in result.all()]
     
     async def get_test(self, test_id: int) -> Test:
-        query = select(Test).where(Test.id == test_id)
-        response = await self._database_session.execute(query)
-        return response[0]
+        query = (
+            select(Test)
+            .where(Test.id == test_id)
+        )
 
-    async def create_test(self, test: TestSchema) -> int:
+        result = await self._database_session.execute(query)
+        return result.first()
+
+    async def create_test(self, test: TestCreate) -> Test:
         test_object = Test(holder=test.holder, published=test.published)
         await self.create(test_object)
-        return test_object.id
+        return test_object
 
-    async def delete_test(self, test_id: int) -> None:
-        query = delete(Test).where(Test.id == test_id)
-        await self._database_session.execute(query)
+    async def delete_test(self, holder: User, test_id: int) -> None:
+        query = (
+            delete(Test)
+            .returning(Test)
+            .where(and_(Test.id == test_id, holder.id == Test.holder))
+        )
+
+        result = await self._database_session.execute(query)
+        return result.first()
+    
+    async def update_test(self, holder: User, test_id: int, data: dict) -> Test:
+        query =  (
+            update(Test)
+            .returning(Test)
+            .where(and_(Test.id==test_id, Test.holder == holder.id))
+            .values(**data)
+        )
+
+        result =  await self._database_session.execute(query)
+        return result.first()
 
 
 class QuestionManager(AbstractBaseManager):
