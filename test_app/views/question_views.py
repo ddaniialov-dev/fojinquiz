@@ -23,20 +23,6 @@ question_router = APIRouter(
 
 
 @question_router.post(
-    '/questions/',
-    status_code=200,
-    response_model=List[Question]
-)
-@JwtAccessRequired()
-async def get_questions(
-    auth: AuthJWT = Depends(),
-    database_session: AsyncSession = Depends(get_session)
-):
-    async with QuestionManager(database_session) as question_manager:
-                
-
-
-@question_router.post(
     '/questions/'
 )
 @JwtAccessRequired()
