@@ -2,7 +2,6 @@ from sqlalchemy import Boolean, Column, ForeignKey, Integer, DateTime, Text, Tab
 from sqlalchemy.orm import relationship
 
 from quiz_project.behaviours import AbstractBaseModel
-from quiz_project.utils import get_current_time
 
 
 class Test(AbstractBaseModel):
