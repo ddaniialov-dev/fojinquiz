@@ -1,6 +1,6 @@
 from typing import List
 
-from sqlalchemy import select, update, and_
+from sqlalchemy import select, update, and_, delete
 
 from schemas import CreateQuestion, UpdateQuestion
 from test_app.models import Image, Question, Test
@@ -53,6 +53,28 @@ class QuestionManager(AbstractBaseManager):
             .returning(Question)
             .where(Question.test == test.id)
             .values()
+        )
+        response = await self._database_session.execute(query)
+        return response.first()
+
+    async def delete_question(self, holder: User, question_id: int) -> None:
+        question = await self.get_question(question_id)
+        query = (
+            select(Test)
+            .where(and_(
+                Test.id == question.test, Test.holder == holder.id
+            ))
+        )
+        response = await self._database_session.execute(query)
+        test = response.first()
+
+        if not test:
+            return None
+
+        query = (
+            delete(Question)
+            .returning(Question)
+            .where(Question.id == question_id)
         )
         response = await self._database_session.execute(query)
         return response.first()
