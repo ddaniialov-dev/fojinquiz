@@ -47,3 +47,4 @@ venv.bak/
 .idea
 **/*.sw*
 media/**
+vscode/
