@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Response
 
 from crud import QuestionManager
-from schemas import UpdateQuestion, CreateQuestion, GetQuestion
+from schemas import UpdateQuestion, CreateQuestion, GetQuestion, ImageSchema
 from quiz_project import (
     JwtAccessRequired,
     get_session,
@@ -22,7 +22,7 @@ question_router = APIRouter(
 )
 
 
-@question_router.post(
+@question_router.get(
     '/',
     status_code=200,
     response_model=List[GetQuestion]
@@ -55,7 +55,7 @@ async def create_question(
     database_session: AsyncSession = Depends(get_session)
 ) -> CreateQuestion:
     async with QuestionManager(database_session) as question_manager:
-        user = get_current_user(database_session, auth)
+        user = await get_current_user(database_session, auth)
         question = await question_manager.create_question(user, question)
 
     return question
@@ -112,7 +112,7 @@ async def delete_question(
 
 
 @question_router.post(
-    '{question_id}/attach_image/'
+    '/{question_id}/attach_image/'
 )
 @JwtAccessRequired()
 async def save_image(
@@ -131,4 +131,5 @@ async def save_image(
                 'content_type': file.content_type,
                 'question': question_id
             }
-            question_manager.create_image(image_structure)
+            image_structure = ImageSchema(**image_structure)
+            await question_manager.create_image(image_structure)
