@@ -4,8 +4,7 @@ from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 
-from crud import QuestionManager
-from models import Question
+from test_app.crud import QuestionManager
 from quiz_project import (
     JwtAccessRequired,
     get_session,
@@ -35,10 +34,10 @@ async def get_questions():
 )
 @JwtAccessRequired()
 async def save_image(
-        question_id: int,
-        auth: AuthJWT = Depends(),
-        files: List[UploadFile] = File(...),
-        database_session: AsyncSession = Depends(get_session)
+    question_id: int,
+    auth: AuthJWT = Depends(),
+    files: List[UploadFile] = File(...),
+    database_session: AsyncSession = Depends(get_session)
 ):
     for file in files:
         byte_data = await file.read()

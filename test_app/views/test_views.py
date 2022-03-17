@@ -5,7 +5,7 @@ from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException
 
-from crud import TestManager
+from test_app.crud import TestManager
 from quiz_project import (
     JwtAccessRequired,
     get_session,

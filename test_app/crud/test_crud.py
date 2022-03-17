@@ -3,8 +3,8 @@ from typing import List
 from sqlalchemy import delete, select, update, and_
 
 from user_app import User
-from test_app.models import Test, Image, Session
-from test_app.schemas import CreateTest, ImageSchema, SessionCreate
+from test_app.models import Test
+from test_app.schemas import CreateTest
 from quiz_project import AbstractBaseManager
 
 
@@ -57,39 +57,4 @@ class TestManager(AbstractBaseManager):
         )
 
         result = await self._database_session.execute(query)
-        return result.first()
-
-
-class QuestionManager(AbstractBaseManager):
-
-    async def get_questions(self, question):
-        pass
-
-    async def create_image(self, image: ImageSchema) -> int:
-        image_object = Image(**image.dict())
-        await self.create(image_object)
-        return image_object.id
-
-
-class SessionManager(AbstractBaseManager):
-    async def get_sessions(self, user_id: int) -> List[Session]:
-        query = (
-            select(Session)
-            .where(Session.user == user_id)
-        )
-        result = await self._database_session.execute(query)
-        return [result[0] for result in result.all()]
-
-    async def get_session(self, user_id: int, session_id: int) -> Session:
-        query = (
-            select(Session)
-            .where(and_(Session.id == session_id, Session.user == user_id))
-        )
-
-        result = await self._database_session.execute(query)
         return result.first()[0]
-
-    async def create_session(self, session: SessionCreate):
-        session_object = Session(**session.dict())
-        await self.create(session_object)
-        return session_object
