@@ -9,7 +9,7 @@ class GetTest(BaseModel):
     published: bool = True
     created_at: datetime
     modified_at: datetime | None
-    
+
     class Config:
         orm_mode = True
 
@@ -30,9 +30,3 @@ class CreateTest(BaseModel):
 
     class Config:
         orm_mode = True
-
-
-class ImageSchema(BaseModel):
-    path: str
-    content_type: str
-    question: int

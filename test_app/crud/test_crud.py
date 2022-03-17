@@ -2,10 +2,10 @@ from typing import List
 
 from sqlalchemy import delete, select, update, and_
 
-from quiz_project import AbstractBaseManager
-from test_app.models import Test, Image
-from test_app.schemas import ImageSchema, CreateTest
 from user_app import User
+from test_app.models import Test
+from test_app.schemas import CreateTest
+from quiz_project import AbstractBaseManager
 
 
 class TestManager(AbstractBaseManager):
@@ -14,7 +14,7 @@ class TestManager(AbstractBaseManager):
         query = select(Test)
         result = await self._database_session.execute(query)
         return [result[0] for result in result.all()]
-    
+
     async def get_user_tests(self, user_id: int) -> List[Test]:
         query = (
             select(Test)
@@ -23,7 +23,7 @@ class TestManager(AbstractBaseManager):
 
         result = await self._database_session.execute(query)
         return [result[0] for result in result.all()]
-    
+
     async def get_test(self, test_id: int) -> Test:
         query = (
             select(Test)
@@ -47,7 +47,7 @@ class TestManager(AbstractBaseManager):
 
         result = await self._database_session.execute(query)
         return result.first()
-    
+
     async def update_test(self, holder: User, test_id: int, data: dict) -> Test:
         query = (
             update(Test)
@@ -58,14 +58,3 @@ class TestManager(AbstractBaseManager):
 
         result = await self._database_session.execute(query)
         return result.first()
-
-
-class QuestionManager(AbstractBaseManager):
-
-    async def get_questions(self, question):
-        pass
-
-    async def create_image(self, image: ImageSchema) -> int:
-        image_object = Image(**image.dict())
-        await self.create(image_object)
-        return image_object.id

@@ -15,7 +15,6 @@ from quiz_project import (
 from test_app.schemas import GetTest, CreateTest, UpdateTest
 
 
-
 test_router = APIRouter(
     prefix='/tests',
     tags=['tests'],
