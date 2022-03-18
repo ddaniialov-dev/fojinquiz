@@ -6,9 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 
 from test_app.crud import QuestionManager
 from quiz_project import (
-    JwtAccessRequired,
     get_session,
-    token_header,
     save_file,
     MEDIA_ROOT
 )
@@ -17,14 +15,12 @@ from quiz_project import (
 question_router = APIRouter(
     prefix='/questions',
     tags=['questions'],
-    dependencies=[Depends(token_header)]
 )
 
 
 @question_router.post(
     '/questions/'
 )
-@JwtAccessRequired()
 async def get_questions():
     pass
 
@@ -32,7 +28,6 @@ async def get_questions():
 @question_router.post(
     '{question_id}/attach_image/'
 )
-@JwtAccessRequired()
 async def save_image(
     question_id: int,
     auth: AuthJWT = Depends(),

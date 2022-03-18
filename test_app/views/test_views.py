@@ -7,7 +7,6 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from test_app.crud import TestManager
 from quiz_project import (
-    JwtAccessRequired,
     get_session,
     token_header,
     get_current_user,
@@ -18,7 +17,6 @@ from user_app.models import User
 test_router = APIRouter(
     prefix='/tests',
     tags=['tests'],
-    dependencies=[Depends(token_header)]
 )
 
 
@@ -27,7 +25,6 @@ test_router = APIRouter(
     status_code=200,
     response_model=List[GetTest]
 )
-@JwtAccessRequired()
 async def get_user_tests(
     auth: AuthJWT = Depends(),
     database_session: AsyncSession = Depends(get_session),
@@ -49,7 +46,6 @@ async def get_user_tests(
     status_code=200,
     response_model=List[GetTest]
 )
-@JwtAccessRequired()
 async def get_all_tests(
         auth: AuthJWT = Depends(),
         database_session: AsyncSession = Depends(get_session)
@@ -70,7 +66,6 @@ async def get_all_tests(
     status_code=201,
     response_model=GetTest
 )
-@JwtAccessRequired()
 async def create_test(
     test: CreateTest,
     auth: AuthJWT = Depends(),
@@ -91,7 +86,6 @@ async def create_test(
     '/{test_id}/',
     status_code=204,
 )
-@JwtAccessRequired()
 async def delete_test(
     test_id: int,
     auth: AuthJWT = Depends(),
@@ -112,7 +106,6 @@ async def delete_test(
     response_model=GetTest,
     status_code=200
 )
-@JwtAccessRequired()
 async def get_test(
         test_id: int,
         auth: AuthJWT = Depends(),
@@ -162,6 +155,5 @@ question_router = APIRouter(
 @question_router.post(
     '/questions/'
 )
-@JwtAccessRequired()
 async def get_questions():
     pass
