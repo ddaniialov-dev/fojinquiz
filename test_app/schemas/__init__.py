@@ -12,5 +12,5 @@ __all__ = [
     "CreateQuestion",
     "UpdateQuestion",
     "GetSession",
-    "CreateSession"
+    "CreateSession",
 ]
