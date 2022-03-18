@@ -107,9 +107,9 @@ async def delete_test(
     status_code=200
 )
 async def get_test(
-        test_id: int,
-        auth: AuthJWT = Depends(),
-        database_session: AsyncSession = Depends(get_session)
+    test_id: int,
+    auth: AuthJWT = Depends(),
+    database_session: AsyncSession = Depends(get_session)
 ):
     async with TestManager(database_session) as test_manager:
         result = await test_manager.get_test(test_id)
@@ -129,12 +129,10 @@ async def get_test(
 async def update_test(
     test_id: int,
     test: UpdateTest,
-    auth: AuthJWT = Depends(),
     database_session: AsyncSession = Depends(get_session),
     user: User = Depends(get_current_user)
 ):
     async with TestManager(database_session) as test_manager:
-        user = await get_current_user(database_session, auth)
         test.holder = user.id
         result = await test_manager.update_test(user, test_id, test.dict())
 

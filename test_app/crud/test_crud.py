@@ -31,7 +31,7 @@ class TestManager(AbstractBaseManager):
         )
 
         result = await self._database_session.execute(query)
-        return result.first()[0]
+        return result.first()
 
     async def create_test(self, test: CreateTest) -> Test:
         test_object = Test(holder=test.holder, published=test.published)
