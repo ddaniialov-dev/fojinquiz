@@ -38,7 +38,7 @@ class TestManager(AbstractBaseManager):
         await self.create(test_object)
         return test_object
 
-    async def delete_test(self, holder: User, test_id: int) -> None:
+    async def delete_test(self, holder: User, test_id: int) -> Test:
         query = (
             delete(Test)
             .returning(Test)
