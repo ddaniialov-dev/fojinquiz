@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, DateTime, MetaData
 
-from quiz_project import Base
-from quiz_project import get_current_time
+from quiz_project.database import Base
+from quiz_project.utils import get_current_time
 
 
 class AbstractBaseModel(Base):

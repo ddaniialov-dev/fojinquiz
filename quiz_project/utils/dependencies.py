@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Header, HTTPException, Depends
 
 from quiz_project.database import get_session
-import user_app
+from user_app.crud import UserManager
 
 
 def token_header(authorization: str = Header(...)):

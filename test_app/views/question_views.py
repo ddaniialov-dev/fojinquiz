@@ -8,11 +8,9 @@ from starlette.responses import StreamingResponse
 from test_app.crud import QuestionManager
 from test_app.schemas import UpdateQuestion, CreateQuestion, GetQuestion, ImageSchema
 
-from quiz_project import (
-    get_session,
-    save_file,
-    MEDIA_ROOT, get_current_user, get_file
-)
+
+from quiz_project import Settings, get_session
+from quiz_project.utils import save_file, get_current_user, get_file
 from user_app.models import User
 
 
@@ -140,7 +138,7 @@ async def create_image(
                 content_type=file.content_type,
                 question=question_id
             )
-            await save_file(MEDIA_ROOT + file.filename, byte_data)
+            await save_file(Settings.MEDIA_ROOT + file.filename, byte_data)
             await question_manager.create_image(image_structure)
 
     return Response(status_code=201)

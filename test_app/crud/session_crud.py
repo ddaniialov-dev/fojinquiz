@@ -3,7 +3,7 @@ from typing import List
 
 from sqlalchemy import delete, select, update, and_
 
-from quiz_project import AbstractBaseManager
+from quiz_project.behaviours import AbstractBaseManager
 from test_app.models import Session, Test
 from test_app.schemas import CreateSession
 from user_app.models import User

@@ -93,8 +93,6 @@ async def refresh(
     status_code=status.HTTP_200_OK
 )
 async def get_me(
-    auth: AuthJWT = Depends(),
-    database_session: AsyncSession = Depends(get_session),
     user: User = Depends(get_current_user)
 ):
     return user

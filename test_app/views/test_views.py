@@ -4,13 +4,14 @@ from fastapi import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException
 
-from test_app.crud import TestManager
-from quiz_project import (
-    get_session,
-    get_current_user,
-)
-from test_app.schemas import GetTest, CreateTest, UpdateTest
 from user_app.models import User
+
+from quiz_project import get_session
+from quiz_project.utils import get_current_user
+
+from test_app.crud import TestManager
+from test_app.schemas import GetTest, CreateTest, UpdateTest
+
 
 test_router = APIRouter(
     prefix='/tests',

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from user_app import router as user_app_router
-from test_app import test_router, question_router, session_router
+from test_app.views import test_router, question_router, session_router
 
 app = FastAPI()
 
