@@ -1,7 +1,6 @@
 import io
 from typing import List
 
-from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Response
 from starlette.responses import StreamingResponse
@@ -29,7 +28,7 @@ question_router = APIRouter(
     response_model=List[GetQuestion]
 )
 async def get_questions(
-    user: User = Depends(get_current_user),
+    auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session),
 ) -> List[GetQuestion]:
     async with QuestionManager(database_session) as question_manager:
@@ -50,12 +49,11 @@ async def get_questions(
 )
 async def create_question(
     question: CreateQuestion,
-    user: User = Depends(get_current_user),
+    auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ) -> GetQuestion:
     async with QuestionManager(database_session) as question_manager:
-        question_object = await question_manager.create_question(user, question)
-
+        question_object = await question_manager.create_question(auth, question)
 
     return question_object
 
@@ -67,7 +65,7 @@ async def create_question(
 )
 async def get_question(
     question_id: int,
-    user: User = Depends(get_current_user),
+    auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ) -> GetQuestion:
     async with QuestionManager(database_session) as question_manager:
@@ -83,11 +81,11 @@ async def get_question(
 )
 async def update_question(
     question: UpdateQuestion,
-    user: User = Depends(get_current_user),
+    auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ) -> GetQuestion:
     async with QuestionManager(database_session) as question_manager:
-        question = await question_manager.update_question(user, question)
+        question = await question_manager.update_question(auth, question)
 
     return question
 
@@ -98,11 +96,11 @@ async def update_question(
 )
 async def delete_question(
     question: UpdateQuestion,
-    user: User = Depends(get_current_user),
+    auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ) -> Response:
     async with QuestionManager(database_session) as question_manager:
-        question = await question_manager.delete_question(user, question)
+        await question_manager.delete_question(auth, question)
 
     return Response()
 
@@ -113,7 +111,7 @@ async def delete_question(
 )
 async def get_image(
     question_id: int,
-    user: User = Depends(get_current_user),
+    auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ) -> StreamingResponse:
     async with QuestionManager(database_session) as question_manager:
@@ -129,7 +127,7 @@ async def get_image(
 )
 async def create_image(
     question_id: int,
-    user: User = Depends(get_current_user),
+    auth: User = Depends(get_current_user),
     files: List[UploadFile] = File(...),
     database_session: AsyncSession = Depends(get_session)
 ) -> Response:

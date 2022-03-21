@@ -8,7 +8,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from test_app.crud import TestManager
 from quiz_project import (
     get_session,
-    token_header,
     get_current_user,
 )
 from test_app.schemas import GetTest, CreateTest, UpdateTest
@@ -141,17 +140,3 @@ async def update_test(
             status_code=404, detail="data not found"
         )
     return result
-
-
-question_router = APIRouter(
-    prefix='/questions',
-    tags=['questions'],
-    dependencies=[Depends(token_header)]
-)
-
-
-@question_router.post(
-    '/questions/'
-)
-async def get_questions():
-    pass

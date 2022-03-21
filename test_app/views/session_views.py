@@ -8,7 +8,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from quiz_project import (
     get_session,
     get_current_user,
-    token_header
 )
 from test_app.schemas import CreateSession, GetSession
 from test_app.crud import SessionManager
@@ -49,7 +48,6 @@ async def get_user_sessions(
 )
 async def create_session(
     session_scheme: CreateSession,
-    auth: AuthJWT = Depends(token_header),
     database_session: AsyncSession = Depends(get_session),
     user: User = Depends(get_current_user)
 ) -> GetSession:

@@ -1,2 +1,2 @@
-from .base_manager import *
-from .base_model import *
+from .base_manager import AbstractBaseManager
+from .base_model import AbstractBaseModel
