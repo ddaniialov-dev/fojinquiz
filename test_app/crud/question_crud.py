@@ -35,7 +35,7 @@ class QuestionManager(AbstractBaseManager):
         test = response.first()
 
         if test:
-            question_object = Question(**question.dict())
+            question_object = Question(text=question.text, test=question.test)
             await self.create(question_object)
             return question_object
 
@@ -77,7 +77,15 @@ class QuestionManager(AbstractBaseManager):
             .where(Question.id == question_id)
         )
         response = await self._database_session.execute(query)
-        return response.first()
+        return response.first()[0]
+
+    async def get_image(self, question_id: int) -> Image:
+        query = (
+            select(Image)
+            .where(Image.question == question_id)
+        )
+        response = await self._database_session.execute(query)
+        return response.first()[0]
 
     async def create_image(self, image: ImageSchema) -> int:
         image_object = Image(**image.dict())

@@ -1,6 +1,7 @@
+import pytz
+import aiofiles
 from datetime import datetime
 
-import pytz
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi_jwt_auth import AuthJWT
 
@@ -17,6 +18,13 @@ async def get_current_user(db_session: AsyncSession, auth: AuthJWT):
     return user[0]
 
 
-def save_file(file_path: str, byte_data: bytes) -> None:
-    with open(file_path, mode='wb') as file:
-        file.write(byte_data)
+async def get_file(file_path: str) -> bytes:
+    async with aiofiles.open(file_path, mode='rb') as file:
+        byte_data = await file.read()
+
+    return byte_data
+
+
+async def save_file(file_path: str, byte_data: bytes) -> None:
+    async with aiofiles.open(file_path, mode='wb') as file:
+        await file.write(byte_data)

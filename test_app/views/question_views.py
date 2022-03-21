@@ -1,8 +1,10 @@
+import io
 from typing import List
 
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Response
+from starlette.responses import StreamingResponse
 
 from crud import QuestionManager
 from schemas import UpdateQuestion, CreateQuestion, GetQuestion, ImageSchema
@@ -11,7 +13,7 @@ from quiz_project import (
     get_session,
     token_header,
     save_file,
-    MEDIA_ROOT, get_current_user
+    MEDIA_ROOT, get_current_user, get_file
 )
 
 
@@ -46,19 +48,20 @@ async def get_questions(
 @question_router.post(
     '/',
     status_code=201,
-    response_model=CreateQuestion
+    response_model=GetQuestion
 )
 @JwtAccessRequired()
 async def create_question(
     question: CreateQuestion,
     auth: AuthJWT = Depends(),
     database_session: AsyncSession = Depends(get_session)
-) -> CreateQuestion:
+) -> GetQuestion:
     async with QuestionManager(database_session) as question_manager:
         user = await get_current_user(database_session, auth)
-        question = await question_manager.create_question(user, question)
+        question_object = await question_manager.create_question(user, question)
 
-    return question
+
+    return question_object
 
 
 @question_router.get(
@@ -111,25 +114,44 @@ async def delete_question(
     return Response()
 
 
-@question_router.post(
-    '/{question_id}/attach_image/'
+@question_router.get(
+    '/{question_id}/images/',
+    status_code=200
 )
 @JwtAccessRequired()
-async def save_image(
-        question_id: int,
-        auth: AuthJWT = Depends(),
-        files: List[UploadFile] = File(...),
-        database_session: AsyncSession = Depends(get_session)
-):
-    for file in files:
-        byte_data = await file.read()
+async def get_image(
+    question_id: int,
+    auth: AuthJWT = Depends(),
+    database_session: AsyncSession = Depends(get_session)
+) -> StreamingResponse:
+    async with QuestionManager(database_session) as question_manager:
+        image = await question_manager.get_image(question_id)
+        byte_data = await get_file(MEDIA_ROOT + image.path)
 
-        async with QuestionManager(database_session) as question_manager:
-            save_file(MEDIA_ROOT + file.filename, byte_data)
-            image_structure = {
-                'path': file.filename,
-                'content_type': file.content_type,
-                'question': question_id
-            }
-            image_structure = ImageSchema(**image_structure)
+    return StreamingResponse(io.BytesIO(byte_data), media_type=image.content_type)
+
+
+@question_router.post(
+    '/{question_id}/images/',
+    status_code=201
+)
+@JwtAccessRequired()
+async def create_image(
+    question_id: int,
+    auth: AuthJWT = Depends(),
+    files: List[UploadFile] = File(...),
+    database_session: AsyncSession = Depends(get_session)
+) -> Response:
+    async with QuestionManager(database_session) as question_manager:
+        for file in files:
+            byte_data = await file.read()
+
+            image_structure = ImageSchema(
+                path=file.filename,
+                content_type=file.content_type,
+                question_id=question_id
+            )
+            await save_file(MEDIA_ROOT + file.filename, byte_data)
             await question_manager.create_image(image_structure)
+
+    return Response(status_code=201)
