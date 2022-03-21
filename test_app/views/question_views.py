@@ -149,7 +149,7 @@ async def create_image(
             image_structure = ImageSchema(
                 path=file.filename,
                 content_type=file.content_type,
-                question_id=question_id
+                question=question_id
             )
             await save_file(MEDIA_ROOT + file.filename, byte_data)
             await question_manager.create_image(image_structure)
