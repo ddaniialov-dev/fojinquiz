@@ -5,8 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Response
 from starlette.responses import StreamingResponse
 
-from crud import QuestionManager
-from schemas import UpdateQuestion, CreateQuestion, GetQuestion, ImageSchema
+from test_app.crud import QuestionManager
+from test_app.schemas import UpdateQuestion, CreateQuestion, GetQuestion, ImageSchema
 
 from quiz_project import (
     get_session,

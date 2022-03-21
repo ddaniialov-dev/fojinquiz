@@ -1,7 +1,6 @@
 from typing import List
 
 from fastapi import Response
-from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -25,7 +24,6 @@ test_router = APIRouter(
     response_model=List[GetTest]
 )
 async def get_user_tests(
-    auth: AuthJWT = Depends(),
     database_session: AsyncSession = Depends(get_session),
     user: User = Depends(get_current_user)
 ) -> List[GetTest]:
@@ -46,8 +44,7 @@ async def get_user_tests(
     response_model=List[GetTest]
 )
 async def get_all_tests(
-        auth: AuthJWT = Depends(),
-        database_session: AsyncSession = Depends(get_session)
+    database_session: AsyncSession = Depends(get_session)
 ) -> List[GetTest]:
     async with TestManager(database_session) as test_manager:
         tests = await test_manager.get_tests()
@@ -67,12 +64,11 @@ async def get_all_tests(
 )
 async def create_test(
     test: CreateTest,
-    auth: AuthJWT = Depends(),
     database_session: AsyncSession = Depends(get_session),
-    user: User = Depends()
+    auth: User = Depends(get_current_user)
 ) -> GetTest:
     async with TestManager(database_session) as test_manager:
-        test.holder = user.id
+        test.holder = auth.id
         result = await test_manager.create_test(test)
         if not result:
             raise HTTPException(
@@ -87,7 +83,6 @@ async def create_test(
 )
 async def delete_test(
     test_id: int,
-    auth: AuthJWT = Depends(),
     database_session: AsyncSession = Depends(get_session),
     user: User = Depends(get_current_user)
 ) -> Response:
@@ -107,7 +102,6 @@ async def delete_test(
 )
 async def get_test(
     test_id: int,
-    auth: AuthJWT = Depends(),
     database_session: AsyncSession = Depends(get_session)
 ):
     async with TestManager(database_session) as test_manager:
@@ -129,11 +123,11 @@ async def update_test(
     test_id: int,
     test: UpdateTest,
     database_session: AsyncSession = Depends(get_session),
-    user: User = Depends(get_current_user)
+    auth: User = Depends(get_current_user)
 ):
     async with TestManager(database_session) as test_manager:
-        test.holder = user.id
-        result = await test_manager.update_test(user, test_id, test.dict())
+        test.holder = auth.id
+        result = await test_manager.update_test(auth, test_id, test.dict())
 
     if not result:
         raise HTTPException(
