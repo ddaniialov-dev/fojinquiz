@@ -9,16 +9,18 @@ class UserGet(BaseModel):
     class Config:
         orm_mode = True
 
+
 class UserCreate(BaseModel):
     username: str
     password: str
 
     class Config:
         orm_mode = True
+
     @validator(
         'username',
         'password',
-        check_fields=False, 
+        check_fields=False,
         always=True
     )
     def blank_string(cls, value):

@@ -2,7 +2,7 @@ from typing import List
 
 from sqlalchemy import select, update, and_, delete
 
-from schemas import CreateQuestion, UpdateQuestion
+from test_app.schemas import CreateQuestion, UpdateQuestion
 from test_app.models import Image, Question, Test
 from test_app.schemas import ImageSchema
 from quiz_project import AbstractBaseManager

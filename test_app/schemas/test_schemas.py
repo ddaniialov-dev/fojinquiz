@@ -30,3 +30,26 @@ class CreateTest(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class ImageSchema(BaseModel):
+    path: str
+    content_type: str
+    question: int
+
+
+class SessionGet(BaseModel):
+    finished_date: datetime = None
+    user: int = None
+    test: int = None
+
+    class Config:
+        orm_mode = True
+
+
+class SessionCreate(BaseModel):
+    user: int | None = None
+    test: int | None = None
+
+    class Config:
+        orm_mode = True

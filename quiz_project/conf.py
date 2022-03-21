@@ -1,5 +1,10 @@
 import os
 
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
 DATABASE = {
     "USER": os.getenv("POSTGRES_USER"),
     "HOST": os.getenv("POSTGRES_HOST"),

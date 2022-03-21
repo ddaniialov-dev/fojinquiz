@@ -5,20 +5,18 @@ from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException
 
-from crud import TestManager
+from test_app.crud import TestManager
 from quiz_project import (
-    JwtAccessRequired,
     get_session,
     token_header,
     get_current_user,
 )
 from test_app.schemas import GetTest, CreateTest, UpdateTest
-
+from user_app.models import User
 
 test_router = APIRouter(
     prefix='/tests',
     tags=['tests'],
-    dependencies=[Depends(token_header)]
 )
 
 
@@ -27,12 +25,11 @@ test_router = APIRouter(
     status_code=200,
     response_model=List[GetTest]
 )
-@JwtAccessRequired()
 async def get_user_tests(
-        auth: AuthJWT = Depends(),
-        database_session: AsyncSession = Depends(get_session)
+    auth: AuthJWT = Depends(),
+    database_session: AsyncSession = Depends(get_session),
+    user: User = Depends(get_current_user)
 ) -> List[GetTest]:
-    user = await get_current_user(database_session, auth)
     async with TestManager(database_session) as test_manager:
         tests = await test_manager.get_user_tests(user.id)
 
@@ -49,7 +46,6 @@ async def get_user_tests(
     status_code=200,
     response_model=List[GetTest]
 )
-@JwtAccessRequired()
 async def get_all_tests(
         auth: AuthJWT = Depends(),
         database_session: AsyncSession = Depends(get_session)
@@ -70,13 +66,12 @@ async def get_all_tests(
     status_code=201,
     response_model=GetTest
 )
-@JwtAccessRequired()
 async def create_test(
-        test: CreateTest,
-        auth: AuthJWT = Depends(),
-        database_session: AsyncSession = Depends(get_session)
-) -> int:
-    user = await get_current_user(database_session, auth)
+    test: CreateTest,
+    auth: AuthJWT = Depends(),
+    database_session: AsyncSession = Depends(get_session),
+    user: User = Depends()
+) -> GetTest:
     async with TestManager(database_session) as test_manager:
         test.holder = user.id
         result = await test_manager.create_test(test)
@@ -91,13 +86,12 @@ async def create_test(
     '/{test_id}/',
     status_code=204,
 )
-@JwtAccessRequired()
 async def delete_test(
-        test_id: int,
-        auth: AuthJWT = Depends(),
-        database_session: AsyncSession = Depends(get_session)
+    test_id: int,
+    auth: AuthJWT = Depends(),
+    database_session: AsyncSession = Depends(get_session),
+    user: User = Depends(get_current_user)
 ) -> Response:
-    user = await get_current_user(database_session, auth)
     async with TestManager(database_session) as test_manager:
         result = await test_manager.delete_test(user, test_id)
 
@@ -112,11 +106,10 @@ async def delete_test(
     response_model=GetTest,
     status_code=200
 )
-@JwtAccessRequired()
 async def get_test(
-        test_id: int,
-        auth: AuthJWT = Depends(),
-        database_session: AsyncSession = Depends(get_session)
+    test_id: int,
+    auth: AuthJWT = Depends(),
+    database_session: AsyncSession = Depends(get_session)
 ):
     async with TestManager(database_session) as test_manager:
         result = await test_manager.get_test(test_id)
@@ -134,14 +127,13 @@ async def get_test(
     status_code=200
 )
 async def update_test(
-        test_id: int,
-        test: UpdateTest,
-        auth: AuthJWT = Depends(),
-        database_session: AsyncSession = Depends(get_session)
+    test_id: int,
+    test: UpdateTest,
+    database_session: AsyncSession = Depends(get_session),
+    user: User = Depends(get_current_user)
 ):
-    user = await get_current_user(database_session, auth)
-    test.holder = user.id
     async with TestManager(database_session) as test_manager:
+        test.holder = user.id
         result = await test_manager.update_test(user, test_id, test.dict())
 
     if not result:
@@ -149,3 +141,17 @@ async def update_test(
             status_code=404, detail="data not found"
         )
     return result
+
+
+question_router = APIRouter(
+    prefix='/questions',
+    tags=['questions'],
+    dependencies=[Depends(token_header)]
+)
+
+
+@question_router.post(
+    '/questions/'
+)
+async def get_questions():
+    pass

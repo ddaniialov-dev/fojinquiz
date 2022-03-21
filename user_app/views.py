@@ -6,13 +6,14 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from quiz_project import get_session
+from quiz_project.utils.dependencies import get_current_user
 
 from .crud import UserManager
 from .schemas import UserGet, UserCreate
-from quiz_project import JwtAccessRequired
+from .models import User
 
 router = APIRouter(
-    tags=['auth']
+    tags=['auth'],
 )
 
 
@@ -91,14 +92,12 @@ async def refresh(
     response_model=UserGet,
     status_code=status.HTTP_200_OK
 )
-@JwtAccessRequired()
 async def get_me(
     auth: AuthJWT = Depends(),
-    database_session: AsyncSession = Depends(get_session)
+    database_session: AsyncSession = Depends(get_session),
+    user: User = Depends(get_current_user)
 ):
-    async with UserManager(database_session) as user_manager:
-        user = await user_manager.get_user_by_username(username=auth.get_jwt_subject())
-    return UserGet.from_orm(user[0])
+    return user
 
 
 async def obtain_auth_tokens(user: UserCreate, auth: AuthJWT) -> dict:

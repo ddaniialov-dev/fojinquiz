@@ -25,7 +25,7 @@ class AbstractBaseManager:
 
     async def _after_create(self, *args, **kwargs):
         pass
-    
+
     async def create(self, obj: AbstractBaseModel):
         await self._before_create()
 

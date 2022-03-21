@@ -57,4 +57,4 @@ class TestManager(AbstractBaseManager):
         )
 
         result = await self._database_session.execute(query)
-        return result.first()
+        return result.first()[0]
