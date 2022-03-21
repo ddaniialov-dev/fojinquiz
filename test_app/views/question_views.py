@@ -9,7 +9,8 @@ from test_app.crud import QuestionManager
 from test_app.schemas import UpdateQuestion, CreateQuestion, GetQuestion, ImageSchema
 
 
-from quiz_project import Settings, get_session
+from quiz_project.conf import Settings
+from quiz_project.database import get_session
 from quiz_project.utils import save_file, get_current_user, get_file
 from user_app.models import User
 

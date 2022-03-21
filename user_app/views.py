@@ -5,14 +5,14 @@ from fastapi_jwt_auth import AuthJWT
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from quiz_project import get_session
-from quiz_project.utils.dependencies import get_current_user
+from quiz_project.database import get_session
+from quiz_project.utils import get_current_user
 
 from .crud import UserManager
 from .schemas import UserGet, UserCreate
 from .models import User
 
-router = APIRouter(
+user_router = APIRouter(
     tags=['auth'],
 )
 
@@ -26,7 +26,7 @@ def get_config():
     return Settings()
 
 
-@router.post(
+@user_router.post(
     '/login/',
     response_class=JSONResponse,
     status_code=status.HTTP_200_OK,
@@ -45,7 +45,7 @@ async def login(
         return await obtain_auth_tokens(user, auth)
 
 
-@router.post(
+@user_router.post(
     "/register/",
     response_class=JSONResponse,
     status_code=status.HTTP_201_CREATED
@@ -69,7 +69,7 @@ async def register(
     )
 
 
-@router.post(
+@user_router.post(
     '/refresh/',
     response_class=JSONResponse,
     status_code=status.HTTP_201_CREATED
@@ -87,7 +87,7 @@ async def refresh(
     }
 
 
-@router.get(
+@user_router.get(
     '/me/',
     response_model=UserGet,
     status_code=status.HTTP_200_OK

@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .base_model import AbstractBaseModel
 
 
 class AbstractBaseManager:
@@ -26,7 +25,7 @@ class AbstractBaseManager:
     async def _after_create(self, *args, **kwargs):
         pass
 
-    async def create(self, obj: AbstractBaseModel):
+    async def create(self, obj):
         await self._before_create()
 
         self._database_session.add(obj)

@@ -3,9 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import JWTDecodeError
 
-from user_app import UserManager
-
-from quiz_project.database import get_session
+from ..database import get_session
 from user_app.crud import UserManager
 
 
