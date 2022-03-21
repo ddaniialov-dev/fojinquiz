@@ -25,8 +25,8 @@ session_router = APIRouter(
     response_model=List[GetSession]
 )
 async def get_user_sessions(
-    database_session: AsyncSession = Depends(get_session),
-    auth: User = Depends(get_current_user)
+    auth: User = Depends(get_current_user),
+    database_session: AsyncSession = Depends(get_session)
 ) -> List[GetSession]:
     async with SessionManager(database_session) as session_manager:
         sessions = await session_manager.get_sessions(auth.id)
@@ -46,8 +46,8 @@ async def get_user_sessions(
 )
 async def create_session(
     session_scheme: CreateSession,
-    database_session: AsyncSession = Depends(get_session),
-    auth: User = Depends(get_current_user)
+    auth: User = Depends(get_current_user),
+    database_session: AsyncSession = Depends(get_session)
 ) -> GetSession:
     async with SessionManager(database_session) as session_manager:
         session_scheme.user = auth.id
@@ -63,8 +63,8 @@ async def create_session(
 )
 async def get_session_object(
     session_id: int,
-    database_session: AsyncSession = Depends(get_session),
-    auth: User = Depends(get_current_user)
+    auth: User = Depends(get_current_user),
+    database_session: AsyncSession = Depends(get_session)
 ):
     async with SessionManager(database_session) as session_manager:
         session = await session_manager.get_session(auth.id, session_id)
@@ -83,8 +83,8 @@ async def get_session_object(
 )
 async def delete_session(
     session_id: int,
-    database_session: AsyncSession = Depends(get_session),
-    auth: User = Depends(get_current_user)
+    auth: User = Depends(get_current_user),
+    database_session: AsyncSession = Depends(get_session)
 ):
     async with SessionManager(database_session) as session_manager:
         result = await session_manager.delete_session(auth, session_id)
