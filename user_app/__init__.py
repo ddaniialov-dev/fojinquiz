@@ -1,5 +1,12 @@
-from . import models, schemas, crud, views
+from .models import User
+from .crud import UserManager
+from .schemas import UserCreate, UserGet
+from .views import router
 
-from .models import *
-from .crud import *
-from .schemas import *
+__all__ = [
+    "router",
+    "User",
+    "UserManager",
+    "UserCreate",
+    "UserGet"
+]

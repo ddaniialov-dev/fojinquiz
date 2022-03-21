@@ -1,17 +1,29 @@
-from pydantic import BaseModel
+from pydantic import validator, BaseModel
 
 
-class BaseUser(BaseModel):
-    username: str
-    
-
-class UserCreate(BaseUser):
-    password: str
-
-
-class User(BaseUser):
+class UserGet(BaseModel):
     id: int
+    username: str
     is_active: bool
-    
+
     class Config:
         orm_mode = True
+
+
+class UserCreate(BaseModel):
+    username: str
+    password: str
+
+    class Config:
+        orm_mode = True
+
+    @validator(
+        'username',
+        'password',
+        check_fields=False,
+        always=True
+    )
+    def blank_string(cls, value):
+        if not value:
+            raise ValueError('Can not be used')
+        return value

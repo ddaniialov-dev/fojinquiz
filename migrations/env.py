@@ -8,13 +8,15 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from alembic import context
 
 from user_app.models import *
+from test_app.models import *
 
-from quiz_project import Base, DATABASE_URL
+from quiz_project import Settings
+from quiz_project.behaviours import AbstractBaseModel
 
 config = context.config
 fileConfig(config.config_file_name)
 
-target_metadata = Base.metadata
+target_metadata = AbstractBaseModel.metadata
 
 
 def run_migrations_offline():
@@ -29,7 +31,7 @@ def run_migrations_offline():
     script output.
 
     """
-    url = DATABASE_URL
+    url = Settings.DATABASE_URL
     context.configure(
         url=url,
         target_metadata=target_metadata,

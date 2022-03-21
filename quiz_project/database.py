@@ -1,11 +1,11 @@
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
-from .conf import DATABASE_URL
+from .conf import Settings
 
 
-engine = create_async_engine(DATABASE_URL, echo=True, future=True)
+engine = create_async_engine(Settings.DATABASE_URL, echo=True, future=True)
 Base = declarative_base()
 
 
