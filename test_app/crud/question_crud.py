@@ -6,7 +6,7 @@ from test_app.schemas import CreateQuestion, UpdateQuestion
 from test_app.models import Image, Question, Test
 from test_app.schemas import ImageSchema
 from quiz_project.behaviours import AbstractBaseManager
-from user_app import User
+from user_app.models import User
 
 
 class QuestionManager(AbstractBaseManager):
