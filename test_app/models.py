@@ -1,7 +1,7 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, DateTime, Text, Table, String
 from sqlalchemy.orm import relationship
 
-from quiz_project.behaviours import AbstractBaseModel
+from quiz_project.behaviours.base_model import AbstractBaseModel
 
 
 class Test(AbstractBaseModel):
@@ -11,6 +11,7 @@ class Test(AbstractBaseModel):
     holder = Column(Integer, ForeignKey("users.id"))
     published = Column(Boolean)
     questions = relationship("Question")
+    sessions = relationship("Session")
 
 
 class Question(AbstractBaseModel):
@@ -20,6 +21,7 @@ class Question(AbstractBaseModel):
     text = Column(Text)
     answers = relationship("Answer")
     images = relationship("Image")
+    sessions = relationship("SessionQuestion")
 
 
 class Answer(AbstractBaseModel):
@@ -44,6 +46,7 @@ class Session(AbstractBaseModel):
     finished_date = Column(DateTime(timezone=True), nullable=True)
     user = Column(Integer, ForeignKey("users.id"))
     test = Column(Integer, ForeignKey("tests.id"))
+    questions = relationship("SessionQuestion")
 
 
 class Image(AbstractBaseModel):
@@ -54,8 +57,9 @@ class Image(AbstractBaseModel):
     question = Column(Integer, ForeignKey("questions.id"))
 
 
-association_table = Table(
-    'association', AbstractBaseModel.metadata,
-    Column('question_id', ForeignKey('questions.id')),
-    Column('session_id', ForeignKey('sessions.id'))
-)
+class SessionQuestion(AbstractBaseModel):
+    __tablename__ = "session_question"
+
+    question = Column('question_id', ForeignKey('questions.id'))
+    session = Column('session_id', ForeignKey('sessions.id'))
+

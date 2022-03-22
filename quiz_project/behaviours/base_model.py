@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, DateTime, MetaData
 
 from ..database import Base
-from ..utils import get_current_time
+from ..utils.functions import get_current_time
 
 
 class AbstractBaseModel(Base):
