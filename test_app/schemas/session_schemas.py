@@ -21,6 +21,7 @@ class GetSession(BaseModel):
 class CreateSession(BaseModel):
     user: int | None = None
     test: int | None = None
+    questions: List[GetQuestion] = []
 
     class Config:
         orm_mode = True

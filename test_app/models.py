@@ -3,6 +3,10 @@ from sqlalchemy.orm import relationship
 
 from quiz_project.behaviours.base_model import AbstractBaseModel
 
+session_question = Table('session_question', AbstractBaseModel.metadata,
+    Column('session_id', ForeignKey('sessions.id'), primary_key=True),
+    Column('question_id', ForeignKey('questions.id'), primary_key=True)
+)
 
 class Test(AbstractBaseModel):
     __tablename__ = "tests"
@@ -21,7 +25,7 @@ class Question(AbstractBaseModel):
     text = Column(Text)
     answers = relationship("Answer")
     images = relationship("Image")
-    sessions = relationship("SessionQuestion")
+    sessions = relationship("Session", secondary=session_question, back_populates='questions')
 
 
 class Answer(AbstractBaseModel):
@@ -46,7 +50,7 @@ class Session(AbstractBaseModel):
     finished_date = Column(DateTime(timezone=True), nullable=True)
     user = Column(Integer, ForeignKey("users.id"))
     test = Column(Integer, ForeignKey("tests.id"))
-    questions = relationship("SessionQuestion")
+    questions = relationship("Question", secondary=session_question, back_populates='sessions')
 
 
 class Image(AbstractBaseModel):
@@ -55,11 +59,4 @@ class Image(AbstractBaseModel):
     path = Column(Text)
     content_type = Column(Text)
     question = Column(Integer, ForeignKey("questions.id"))
-
-
-class SessionQuestion(AbstractBaseModel):
-    __tablename__ = "session_question"
-
-    question = Column('question_id', ForeignKey('questions.id'))
-    session = Column('session_id', ForeignKey('sessions.id'))
 

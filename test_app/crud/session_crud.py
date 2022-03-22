@@ -36,10 +36,11 @@ class SessionManager(AbstractBaseManager):
         )
         result = await self._database_session.execute(query)
         test = result.scalars().first()
-        session.questions = test.questions.all()
 
         session_object = Session(**session.dict())
+        session_object.questions = test.questions
         await self.create(session_object)
+        
         return session_object
 
     async def delete_session(self, user: User, session_id: int):
