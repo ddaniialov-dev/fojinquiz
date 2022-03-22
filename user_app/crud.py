@@ -4,7 +4,7 @@ from uuid import NAMESPACE_X500, uuid5
 from sqlalchemy import and_
 from sqlalchemy.future import select
 
-from quiz_project.behaviours import AbstractBaseManager
+from quiz_project.behaviours.base_manager import AbstractBaseManager
 
 from .models import User
 from .schemas import UserCreate

@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from user_app.models import User
 
 from quiz_project.database import get_session
-from quiz_project.utils import get_current_user
+from quiz_project.utils.dependencies import get_current_user
 
 from test_app.crud import SessionManager
 from test_app.schemas import CreateSession, GetSession
@@ -51,7 +51,7 @@ async def create_session(
 ) -> GetSession:
     async with SessionManager(database_session) as session_manager:
         session_scheme.user = auth.id
-        session_object = await session_manager.create_session(session_scheme)
+        session_object = await session_manager.create_session(auth, session_scheme)
 
     return session_object
 

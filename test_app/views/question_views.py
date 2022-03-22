@@ -11,7 +11,8 @@ from test_app.schemas import UpdateQuestion, CreateQuestion, GetQuestion, ImageS
 
 from quiz_project.conf import Settings
 from quiz_project.database import get_session
-from quiz_project.utils import save_file, get_current_user, get_file
+from quiz_project.utils.functions import save_file, get_file
+from quiz_project.utils.dependencies import get_current_user
 from user_app.models import User
 
 

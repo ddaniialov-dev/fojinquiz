@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from user_app.models import User
 
 from quiz_project.database import get_session
-from quiz_project.utils import get_current_user
+from quiz_project.utils.dependencies import get_current_user
 
 from test_app.crud import TestManager
 from test_app.schemas import GetTest, CreateTest, UpdateTest

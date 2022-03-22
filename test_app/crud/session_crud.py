@@ -2,8 +2,9 @@ import re
 from typing import List
 
 from sqlalchemy import delete, select, update, and_
+from sqlalchemy.orm import selectinload
 
-from quiz_project.behaviours import AbstractBaseManager
+from quiz_project.behaviours.base_manager import AbstractBaseManager
 from test_app.models import Session, Test
 from test_app.schemas import CreateSession
 from user_app.models import User
@@ -31,9 +32,10 @@ class SessionManager(AbstractBaseManager):
         query = (
             select(Test)
             .where(Test.id == session.test)
+            .options(selectinload(Test.questions))
         )
         result = await self._database_session.execute(query)
-        test = result.first()
+        test = result.scalars().first()
         session.questions = test.questions.all()
 
         session_object = Session(**session.dict())
