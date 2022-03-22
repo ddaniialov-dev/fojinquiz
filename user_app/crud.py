@@ -19,22 +19,22 @@ class UserManager(AbstractBaseManager):
             and_(User.username == username, User.hashed_password == hashed_password)
         )
         response = await self._database_session.execute(query)
-        return response.first()
+        return response.scalars().first()
 
     async def get_user(self, user_id: int):
         query = select(User).where(User.id == user_id)
         response = await self._database_session.execute(query)
-        return response.first()
+        return response.scalars().first()
 
     async def get_user_by_username(self, username: str):
         query = select(User).where(User.username == username)
         response = await self._database_session.execute(query)
-        return response.first()
+        return response.scalars().first()
 
     async def get_users(self, skip: int = 0, limit: int = 100):
         query = select(User).offset(skip).limit(limit)
         response = await self._database_session.execute(query)
-        return response.all()
+        return response.scalars().all()
 
     async def create_user(self, user: UserCreate):
         salt = uuid5(NAMESPACE_X500, user.username).hex.encode()
