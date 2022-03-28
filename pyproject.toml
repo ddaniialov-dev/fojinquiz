@@ -7,7 +7,6 @@ authors = ["solo <dsogomonian.exceed@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.10"
 fastapi = "^0.74.1"
-asyncpg = "^0.25.0"
 SQLAlchemy = "^1.4.31"
 alembic = "^1.7.6"
 fastapi-jwt-auth = "^0.5.0"
