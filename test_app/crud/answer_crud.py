@@ -26,4 +26,4 @@ class AnswerManager(AbstractBaseManager):
         return answer_object
     
     async def get_answers(self, question_id):
-        
+        pass
