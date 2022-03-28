@@ -5,7 +5,7 @@ from sqlalchemy import delete, select, update, and_
 from user_app.models import User
 from test_app.models import Test
 from test_app.schemas import CreateTest
-from quiz_project.behaviours import AbstractBaseManager
+from quiz_project.behaviours.base_manager import AbstractBaseManager
 
 
 class TestManager(AbstractBaseManager):

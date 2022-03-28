@@ -7,11 +7,11 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from alembic import context
 
-from user_app.models import *
 from test_app.models import *
+from user_app.models import *
 
-from quiz_project import Settings
-from quiz_project.behaviours import AbstractBaseModel
+from quiz_project.conf import Settings
+from quiz_project.behaviours.base_model import AbstractBaseModel
 
 config = context.config
 fileConfig(config.config_file_name)
@@ -57,7 +57,7 @@ async def run_migrations_online():
     and associate a connection with the context.
     """
     alembic_config = config.get_section(config.config_ini_section)
-    alembic_config['sqlalchemy.url'] = DATABASE_URL
+    alembic_config['sqlalchemy.url'] = Settings.DATABASE_URL
     connectable = AsyncEngine(
         engine_from_config(
             alembic_config,

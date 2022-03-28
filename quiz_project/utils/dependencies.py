@@ -1,10 +1,12 @@
+from typing import Callable
+
 from fastapi import Header, HTTPException, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import JWTDecodeError
 
 from ..database import get_session
-from user_app.crud import UserManager
+from user_app.crud import UserManager, User
 
 
 def token_header(authorization: str = Header(...)):
@@ -17,9 +19,9 @@ def token_header(authorization: str = Header(...)):
 
 async def get_current_user(
     auth: AuthJWT = Depends(),
-    token_auth = Depends(token_header),
+    token_auth: Callable = Depends(token_header),
     db_session: AsyncSession = Depends(get_session)
-):
+) -> User:
     try:
         auth.jwt_required()
     except JWTDecodeError:
@@ -29,7 +31,4 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     async with UserManager(db_session) as user_manager:
-        user = await user_manager.get_user_by_username(auth.get_jwt_subject())
-    if user:
-        user = user[0]
-    return user
+        return await user_manager.get_user_by_username(auth.get_jwt_subject())

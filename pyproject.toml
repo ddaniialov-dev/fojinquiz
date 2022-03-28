@@ -19,6 +19,7 @@ aiofiles = "^0.8.0"
 python-dotenv = "^0.19.2"
 
 [tool.poetry.dev-dependencies]
+ipython = "^8.1.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
