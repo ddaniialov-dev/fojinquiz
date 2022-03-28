@@ -116,7 +116,7 @@ async def get_image(
 ) -> StreamingResponse:
     async with QuestionManager(database_session) as question_manager:
         image = await question_manager.get_image(question_id)
-        byte_data = await get_file(MEDIA_ROOT + image.path)
+        byte_data = await get_file(Settings.MEDIA_ROOT + image.path)
 
     return StreamingResponse(io.BytesIO(byte_data), media_type=image.content_type)
 
