@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from .conf import Settings
 
 
-engine = create_async_engine(Settings.DATABASE_URL, echo=True, future=True)
+engine = create_async_engine(Settings.DATABASE_URL, future=True)
 Base = declarative_base()
 
 
