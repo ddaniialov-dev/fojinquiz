@@ -1,6 +1,8 @@
 __pycache__
+.gitignore
 README.md
 .venv/
 venv/
-.env.example
 .idea/
+poetry.lock
+pyproject.toml

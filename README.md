@@ -1,7 +1,7 @@
 # Quiz for exceed team friday parties
 
 ### .env settings
-- POSTGRES_DB=main_db
-- POSTGRES_USER=daniyalbek
-- POSTGRES_PASSWORD=zorro-kiomi1551
-- POSTGRES_HOST=db
+- POSTGRES_DB=example
+- POSTGRES_USER=example
+- POSTGRES_PASSWORD=example
+- POSTGRES_HOST=example
