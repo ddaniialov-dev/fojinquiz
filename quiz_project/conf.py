@@ -7,7 +7,7 @@ from fastapi_jwt_auth import AuthJWT
 load_dotenv()
 
 
-class Settings(BaseModel):
+class Settings:
     DB = {
         'USER': os.getenv('POSTGRES_USER'),
         'HOST': os.getenv('POSTGRES_HOST'),
@@ -17,9 +17,11 @@ class Settings(BaseModel):
     DATABASE_URL = f"postgresql+asyncpg://{DB['USER']}:{DB['PASSWORD']}@{DB['HOST']}/{DB['NAME']}"
     MEDIA_ROOT = os.getenv('MEDIA_ROOT')
 
+
+class JWTSettings(BaseModel):
     authjwt_secret_key = os.getenv('SECRET_KEY')
 
 
 @AuthJWT.load_config
 def get_config():
-    return Settings()
+    return JWTSettings()
