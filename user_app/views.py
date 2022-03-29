@@ -2,7 +2,6 @@ from fastapi import APIRouter, status, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi_jwt_auth import AuthJWT
 
-from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from quiz_project.database import get_session
@@ -12,18 +11,10 @@ from .crud import UserManager
 from .schemas import UserGet, UserCreate
 from .models import User
 
+
 user_router = APIRouter(
     tags=['auth'],
 )
-
-
-class Settings(BaseModel):
-    authjwt_secret_key: str = "secret"
-
-
-@AuthJWT.load_config
-def get_config():
-    return Settings()
 
 
 @user_router.post(
