@@ -3,9 +3,13 @@ version: "3"
 volumes:
   _postgres_data:
 
+networks:
+  backend:
+    driver: bridge
+
 services:
   db:
-    container_name: quiz_db
+    container_name: db
     image: postgres:13
     networks:
       - backend
@@ -16,7 +20,7 @@ services:
     ports:
       - "5433:5432"
   migrations:
-    container_name: quiz_migrations
+    container_name: migrations
     build: .
     networks:
       - backend
@@ -29,35 +33,29 @@ services:
       - db
       - web
   web:
-    container_name: quiz_web
     build: .
+    deploy:
+      replicas: 3
     networks:
       - backend
     env_file: 
      - .env
     depends_on:
      - db
-     - traefik
     volumes:
       - ./:/code
     expose:
       - "8000"
-    command: uvicorn main:app --reload --host 0.0.0.0
-    labels:
-      - traefik.port=80
-      - traefik.http.routers.fastapi.rule=Host(`localhost`)
-  traefik:
-    container_name: quiz_traefik
-    image: traefik:v2.2
+    command: uvicorn main:app --reload --host 0.0.0.0 --port 8000
+  nginx:
+    container_name: nginx
+    image: nginx
     networks:
       - backend
     ports:
-      - "8080:8080"
       - "80:80"
     volumes:
-      - "./traefik.dev.toml:/etc/traefik/traefik.toml"
-      - "/var/run/docker.sock:/var/run/docker.sock"
-
-networks:
-  backend:
-    driver: bridge
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - web
+      - db
