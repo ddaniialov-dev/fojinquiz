@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class GetTest(BaseModel):
     id: int
-    holder: int
+    holder_id: int
     published: bool = True
     created_at: datetime
     modified_at: datetime | None
@@ -15,7 +15,7 @@ class GetTest(BaseModel):
 
 
 class UpdateTest(BaseModel):
-    holder: int | None
+    holder_id: int | None
     title: str | None
     published: bool | None
 
@@ -24,7 +24,7 @@ class UpdateTest(BaseModel):
 
 
 class CreateTest(BaseModel):
-    holder: int = None
+    holder_id: int = None
     title: str | None = None
     published: bool | None = True
 

@@ -57,7 +57,6 @@ async def create_question(
 
     return question_object
 
-
 @question_router.get(
     '/{question_id}/',
     status_code=200,

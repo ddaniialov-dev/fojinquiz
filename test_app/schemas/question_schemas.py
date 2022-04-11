@@ -11,7 +11,7 @@ class GetQuestion(BaseModel):
 
 
 class CreateQuestion(BaseModel):
-    test: int
+    test_id: int
     text: str
 
     class Config:

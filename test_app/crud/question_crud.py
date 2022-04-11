@@ -28,14 +28,14 @@ class QuestionManager(AbstractBaseManager):
         query = (
             select(Test)
             .where(and_(
-                Test.id == question.test, Test.holder == holder.id
+                Test.id == question.test_id, Test.holder_id == holder.id
             ))
         )
         response = await self._database_session.execute(query)
-        test = response.first()
+        test = response.scalar()
 
         if test:
-            question_object = Question(text=question.text, test=question.test)
+            question_object = Question(text=question.text, test_id=question.test_id)
             await self.create(question_object)
             return question_object
 

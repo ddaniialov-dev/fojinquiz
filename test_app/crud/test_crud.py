@@ -34,7 +34,7 @@ class TestManager(AbstractBaseManager):
         return result.first()
 
     async def create_test(self, test: CreateTest) -> Test:
-        test_object = Test(holder=test.holder, published=test.published)
+        test_object = Test(holder_id=test.holder_id, published=test.published)
         await self.create(test_object)
         return test_object
 

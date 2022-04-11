@@ -30,7 +30,7 @@ class AbstractBaseManager:
 
         self._database_session.add(obj)
         await self._database_session.commit()
-
+        await self._database_session.refresh(obj)
         await self._after_create()
 
     async def _before_update(self, *args, **kwargs):

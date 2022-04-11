@@ -26,10 +26,10 @@ test_router = APIRouter(
 )
 async def get_user_tests(
     database_session: AsyncSession = Depends(get_session),
-    user: User = Depends(get_current_user)
+    auth: User = Depends(get_current_user)
 ) -> List[GetTest]:
     async with TestManager(database_session) as test_manager:
-        tests = await test_manager.get_user_tests(user.id)
+        tests = await test_manager.get_user_tests(auth.id)
 
         if not tests:
             raise HTTPException(
@@ -69,7 +69,7 @@ async def create_test(
     auth: User = Depends(get_current_user)
 ) -> GetTest:
     async with TestManager(database_session) as test_manager:
-        test.holder = auth.id
+        test.holder_id = auth.id
         result = await test_manager.create_test(test)
         if not result:
             raise HTTPException(
@@ -85,10 +85,10 @@ async def create_test(
 async def delete_test(
     test_id: int,
     database_session: AsyncSession = Depends(get_session),
-    user: User = Depends(get_current_user)
+    auth: User = Depends(get_current_user)
 ) -> Response:
     async with TestManager(database_session) as test_manager:
-        result = await test_manager.delete_test(user, test_id)
+        result = await test_manager.delete_test(auth, test_id)
 
     if not result:
         raise HTTPException(status_code=404, detail="data not found")

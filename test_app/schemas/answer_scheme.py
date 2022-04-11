@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 
 class CreateAnswer(BaseModel):
-    question: int
     text: str
     is_true: bool = False
 

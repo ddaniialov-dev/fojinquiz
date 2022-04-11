@@ -33,6 +33,10 @@ async def create_answer(
 ):
     async with AnswerManager(database_session) as answer_manager:
         answer_object = await answer_manager.create_answer(auth, question_id, answer)
+        if not answer_object:
+            raise HTTPException(
+                status_code=404, detail='Permission denied'
+            )
 
     return answer_object
 
