@@ -9,7 +9,7 @@ class CreateAnswer(BaseModel):
 
 class GetAnswer(BaseModel):
     id: int
-    question: int
+    question_id: int
     text: str
     is_true: bool
 

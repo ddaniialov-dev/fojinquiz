@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 class GetQuestion(BaseModel):
     id: int
-    test: int
+    test_id: int
     text: str
 
     class Config:
@@ -19,7 +19,7 @@ class CreateQuestion(BaseModel):
 
 
 class UpdateQuestion(BaseModel):
-    test: int
+    test_id: int
     text: str
 
     class Config:
