@@ -21,7 +21,7 @@ answer_router = APIRouter(
 
 
 @answer_router.post(
-    '/',
+    '/answers/',
     status_code=201,
     response_model=GetAnswer
 )
@@ -32,11 +32,16 @@ async def create_answer(
     database_session: AsyncSession = Depends(get_session)
 ):
     async with AnswerManager(database_session) as answer_manager:
-        answer_object = await answer_manager.create_answer(auth, question_id, answer)
-        if not answer_object:
+        question_object = await answer_manager.get_question(question_id)
+        if question_object.test.holder_id != auth.id:
             raise HTTPException(
-                status_code=404, detail='Permission denied'
+                status_code=403, detail='Permission denied'
             )
+        if not question_object:
+            raise HTTPException(
+                status_code=404, detail='Question not found.'
+            )
+        answer_object = await answer_manager.create_answer(auth, question_id, answer)
 
     return answer_object
 
@@ -52,12 +57,17 @@ async def get_answers(
     database_session: AsyncSession = Depends(get_session)
 ):
     async with AnswerManager(database_session) as answer_manager:
-        answer_objects = await answer_manager.get_answers(auth, question_id)
-
-        if not answer_objects:
+        question_object = await answer_manager.get_question(question_id)
+        if not question_object:
             raise HTTPException(
-                status_code=404, detail='data not found'
+                status_code=404, detail='Question not found.'
             )
+        if question_object.test.holder_id != auth.id:
+            raise HTTPException(
+                status_code=403, detail='Permission denied.'
+            )
+        answer_objects = await answer_manager.get_answers(question_id)
+
     return answer_objects
 
 
@@ -72,8 +82,8 @@ async def get_answers(
     database_session: AsyncSession = Depends(get_session)
 ):
     async with AnswerManager(database_session) as answer_manager:
+        question_object = answer_manager.get_question(question_id)
         answer_object = await answer_manager.get_answers(auth, question_id)
-
         if not answer_object:
             raise HTTPException(
                 status_code=404, detail='data not found'
