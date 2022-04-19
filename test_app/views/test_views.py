@@ -9,7 +9,7 @@ from quiz_project.utils.dependencies import get_current_user
 
 from test_app.crud import TestManager
 from test_app.schemas import GetTest, CreateTest, UpdateTest
-from test_app.checks import check_for_holder, check_for_tests, get_test_or_not_found
+from test_app.checks import check_if_holder, check_if_exist, check_if_exists
 
 test_router = APIRouter(
     prefix='/tests',
@@ -28,7 +28,7 @@ async def get_user_tests(
 ) -> list[GetTest]:
     async with TestManager(database_session) as test_manager:
         tests = await test_manager.get_user_tests(auth.id)
-        await check_for_tests(tests)
+        await check_if_exist(tests)
     return tests
 
 
@@ -42,7 +42,7 @@ async def get_all_tests(
 ) -> list[GetTest]:
     async with TestManager(database_session) as test_manager:
         tests = await test_manager.get_tests()
-        await check_for_tests(tests)
+        await check_if_exists(tests)
         return tests
 
 
@@ -76,12 +76,10 @@ async def delete_test(
     auth: User = Depends(get_current_user)
 ) -> Response:
     async with TestManager(database_session) as test_manager:
-        await get_test_or_not_found(test_manager, test_id)
-        await check_for_holder(test_manager, auth, test_id)
-
-        tests = await test_manager.delete_test(auth, test_id)
-        await check_for_tests(tests)
-
+        test = await test_manager.get_test(test_id)
+        await check_if_exists(test)
+        await check_if_holder(auth.id, test.holder_id)
+        await test_manager.delete_test(auth, test_id)
         return Response(status_code=204)
 
 
@@ -95,7 +93,8 @@ async def get_test(
     database_session: AsyncSession = Depends(get_session)
 ):
     async with TestManager(database_session) as test_manager:
-        test = await get_test_or_not_found(test_manager, test_id)
+        test = await test_manager.get_test(test_id)
+        await check_if_exists(test)
         return test
 
 
@@ -111,11 +110,11 @@ async def update_test(
     auth: User = Depends(get_current_user)
 ):
     async with TestManager(database_session) as test_manager:
-        await get_test_or_not_found(test_manager, test_id)
-        await check_for_holder(test_manager, auth, test_id)
+        test_object = await test_manager.get_test(test_id)
+        await check_if_exists(test_object)
+        await check_if_holder(auth.id, test_object.holder_id)
         test = await test_manager.update_test(
             test_id,
             test.dict(exclude={"holder_id"}, exclude_unset=True)
         )
-        await check_for_tests(test)
         return test

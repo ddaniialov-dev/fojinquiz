@@ -1,1 +1,1 @@
-from .test_checks import check_for_holder, check_for_tests, get_test_or_not_found
+from .common import check_if_exist, check_if_exists, check_if_holder
