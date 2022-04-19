@@ -2,12 +2,12 @@ import io
 from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Response
+from fastapi import APIRouter, Depends, UploadFile, File, Response
 from starlette.responses import StreamingResponse
 
 from test_app.crud import QuestionManager
 from test_app.schemas import UpdateQuestion, CreateQuestion, GetQuestion, ImageSchema
-
+from test_app.checks import check_if_exist, check_if_exists, check_if_holder, check_if_test_has_question
 
 from quiz_project.conf import Settings
 from quiz_project.database import get_session
@@ -17,7 +17,7 @@ from user_app.models import User
 
 
 question_router = APIRouter(
-    prefix='/questions',
+    prefix='/tests/{test_id}/questions',
     tags=['questions'],
 )
 
@@ -28,18 +28,14 @@ question_router = APIRouter(
     response_model=List[GetQuestion]
 )
 async def get_questions(
+    test_id: int,
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session),
 ) -> List[GetQuestion]:
     async with QuestionManager(database_session) as question_manager:
-        questions = await question_manager.get_questions()
-
-    if not questions:
-        raise HTTPException(
-            status_code=404, detail='data not found'
-        )
-
-    return questions
+        questions = await question_manager.get_questions(test_id)
+        await check_if_exist(questions)
+        return questions
 
 
 @question_router.post(
@@ -49,13 +45,16 @@ async def get_questions(
 )
 async def create_question(
     question: CreateQuestion,
+    test_id: int,
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ) -> GetQuestion:
     async with QuestionManager(database_session) as question_manager:
-        question_object = await question_manager.create_question(auth, question)
-
-    return question_object
+        test = await question_manager.get_test(test_id)
+        await check_if_exists(test)
+        await check_if_holder(auth.id, test.holder_id)
+        question_object = await question_manager.create_question(question, test_id)
+        return question_object
 
 @question_router.get(
     '/{question_id}/',
@@ -64,13 +63,17 @@ async def create_question(
 )
 async def get_question(
     question_id: int,
+    test_id: int,
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ) -> GetQuestion:
     async with QuestionManager(database_session) as question_manager:
+        test = await question_manager.get_test(test_id)
+        await check_if_exists(test)
         question = await question_manager.get_question(question_id)
-
-    return question
+        await check_if_exists(question)
+        await check_if_test_has_question(test_id, question)
+        return question
 
 
 @question_router.put(
@@ -80,13 +83,20 @@ async def get_question(
 )
 async def update_question(
     question: UpdateQuestion,
+    question_id: int,
+    test_id: int,
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ) -> GetQuestion:
     async with QuestionManager(database_session) as question_manager:
-        question = await question_manager.update_question(auth, question)
-
-    return question
+        test = await question_manager.get_test(test_id)
+        await check_if_exists(test)
+        await check_if_holder(auth.id, test.holder_id)
+        question_object = await question_manager.get_question(question_id)
+        await check_if_exists(question_object)
+        await check_if_test_has_question(test_id, question_object)
+        question = await question_manager.update_question(question.dict(exclude_unset=True), question_id)
+        return question
 
 
 @question_router.delete(
@@ -94,14 +104,20 @@ async def update_question(
     status_code=204,
 )
 async def delete_question(
-    question: UpdateQuestion,
+    question_id: int,
+    test_id: int,
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ) -> Response:
     async with QuestionManager(database_session) as question_manager:
-        await question_manager.delete_question(auth, question)
-
-    return Response()
+        test = await question_manager.get_test(test_id)
+        await check_if_exists(test)
+        await check_if_holder(auth.id, test.holder_id)
+        question_object = await question_manager.get_question(question_id)
+        await check_if_exists(question_object)
+        await check_if_test_has_question(test_id, question_object)
+        await question_manager.delete_question(question_id)
+        return Response(status_code=204)
 
 
 @question_router.get(

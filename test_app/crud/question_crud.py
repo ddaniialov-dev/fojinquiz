@@ -11,73 +11,47 @@ from user_app.models import User
 
 class QuestionManager(AbstractBaseManager):
 
-    async def get_questions(self) -> List[Question]:
-        query = select(Question)
-        response = await self._database_session.execute(query)
-        return [result[0] for result in response.all()]
+    async def get_test(self, test_id: int) -> Test:
+        query = (
+            select(Test)
+            .where(Test.id == test_id)
+        )
+
+        result = await self._database_session.execute(query)
+        return result.scalars().one_or_none()
+
+    async def get_questions(self, test_id) -> List[Question]:
+        query = select(Question).where(Question.test_id == test_id)
+        result = await self._database_session.execute(query)
+        return result.scalars().fetchall()
 
     async def get_question(self, question_id: int) -> Question:
-        query = (
-            select(Question)
-            .where(Question.id == question_id)
-        )
-        response = await self._database_session.execute(query)
-        return response.first()
+        query = select(Question).where(Question.id == question_id)
+        result = await self._database_session.execute(query)
+        return result.scalars().one_or_none()
 
-    async def create_question(self, holder: User, question: CreateQuestion) -> Question:
-        query = (
-            select(Test)
-            .where(and_(
-                Test.id == question.test_id, Test.holder_id == holder.id
-            ))
-        )
-        response = await self._database_session.execute(query)
-        test = response.scalar()
+    async def create_question(self, question: CreateQuestion, test_id: int) -> Question:
+        question_object = Question(**question.dict(), test_id=test_id)
+        await self.create(question_object)
+        return question_object
 
-        if test:
-            question_object = Question(text=question.text, test_id=question.test_id)
-            await self.create(question_object)
-            return question_object
-
-    async def update_question(self, holder: User, question: UpdateQuestion) -> Question:
-        query = (
-            select(Test)
-            .where(and_(
-                Test.id == question.test, Test.holder == holder.id
-            ))
-        )
-        response = await self._database_session.execute(query)
-        test = response.first()
+    async def update_question(self, data: dict, question_id: int) -> Question:
         query = (
             update(Question)
             .returning(Question)
-            .where(Question.test == test.id)
-            .values()
+            .where(Question.id == question_id)
+            .values(data)
         )
         response = await self._database_session.execute(query)
         return response.first()
 
-    async def delete_question(self, holder: User, question_id: int) -> None:
-        question = await self.get_question(question_id)
-        query = (
-            select(Test)
-            .where(and_(
-                Test.id == question.test, Test.holder == holder.id
-            ))
-        )
-        response = await self._database_session.execute(query)
-        test = response.first()
-
-        if not test:
-            return None
-
+    async def delete_question(self, question_id: int) -> None:
         query = (
             delete(Question)
             .returning(Question)
             .where(Question.id == question_id)
         )
-        response = await self._database_session.execute(query)
-        return response.first()[0]
+        await self._database_session.execute(query)
 
     async def get_image(self, question_id: int) -> Image:
         query = (
@@ -85,7 +59,7 @@ class QuestionManager(AbstractBaseManager):
             .where(Image.question == question_id)
         )
         response = await self._database_session.execute(query)
-        return response.first()[0]
+        return response.scalars().one_or_none()
 
     async def create_image(self, image: ImageSchema) -> int:
         image_object = Image(**image.dict())
