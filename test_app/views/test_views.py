@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException
@@ -11,7 +9,7 @@ from quiz_project.utils.dependencies import get_current_user
 
 from test_app.crud import TestManager
 from test_app.schemas import GetTest, CreateTest, UpdateTest
-
+from test_app.checks import check_for_holder, check_for_tests, get_test_or_not_found
 
 test_router = APIRouter(
     prefix='/tests',
@@ -22,40 +20,30 @@ test_router = APIRouter(
 @test_router.get(
     '/',
     status_code=200,
-    response_model=List[GetTest]
+    response_model=list[GetTest]
 )
 async def get_user_tests(
     database_session: AsyncSession = Depends(get_session),
     auth: User = Depends(get_current_user)
-) -> List[GetTest]:
+) -> list[GetTest]:
     async with TestManager(database_session) as test_manager:
         tests = await test_manager.get_user_tests(auth.id)
-
-        if not tests:
-            raise HTTPException(
-                status_code=404, detail='data not found'
-            )
-
+        await check_for_tests(tests)
     return tests
 
 
 @test_router.get(
     '/all/',
     status_code=200,
-    response_model=List[GetTest]
+    response_model=list[GetTest]
 )
 async def get_all_tests(
     database_session: AsyncSession = Depends(get_session)
-) -> List[GetTest]:
+) -> list[GetTest]:
     async with TestManager(database_session) as test_manager:
         tests = await test_manager.get_tests()
-
-        if not tests:
-            raise HTTPException(
-                status_code=404, detail='data not found'
-            )
-
-    return tests
+        await check_for_tests(tests)
+        return tests
 
 
 @test_router.post(
@@ -73,7 +61,7 @@ async def create_test(
         result = await test_manager.create_test(test)
         if not result:
             raise HTTPException(
-                status_code=400, detail='test wat not created'
+                status_code=400, detail='Test wat not created'
             )
     return result
 
@@ -88,12 +76,13 @@ async def delete_test(
     auth: User = Depends(get_current_user)
 ) -> Response:
     async with TestManager(database_session) as test_manager:
-        result = await test_manager.delete_test(auth, test_id)
+        await get_test_or_not_found(test_manager, test_id)
+        await check_for_holder(test_manager, auth, test_id)
 
-    if not result:
-        raise HTTPException(status_code=404, detail="data not found")
+        tests = await test_manager.delete_test(auth, test_id)
+        await check_for_tests(tests)
 
-    return Response()
+        return Response(status_code=204)
 
 
 @test_router.get(
@@ -106,13 +95,8 @@ async def get_test(
     database_session: AsyncSession = Depends(get_session)
 ):
     async with TestManager(database_session) as test_manager:
-        result = await test_manager.get_test(test_id)
-
-    if not result:
-        raise HTTPException(
-            status_code=404, detail="data not found"
-        )
-    return result
+        test = await get_test_or_not_found(test_manager, test_id)
+        return test
 
 
 @test_router.put(
@@ -127,11 +111,11 @@ async def update_test(
     auth: User = Depends(get_current_user)
 ):
     async with TestManager(database_session) as test_manager:
-        test.holder = auth.id
-        result = await test_manager.update_test(auth, test_id, test.dict())
-
-    if not result:
-        raise HTTPException(
-            status_code=404, detail="data not found"
+        await get_test_or_not_found(test_manager, test_id)
+        await check_for_holder(test_manager, auth, test_id)
+        test = await test_manager.update_test(
+            test_id,
+            test.dict(exclude={"holder_id"}, exclude_unset=True)
         )
-    return result
+        await check_for_tests(test)
+        return test
