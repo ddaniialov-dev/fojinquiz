@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException
@@ -11,7 +9,7 @@ from quiz_project.utils.dependencies import get_current_user
 
 from test_app.crud import TestManager
 from test_app.schemas import GetTest, CreateTest, UpdateTest
-
+from test_app.checks.common import check_if_holder, check_if_exist, check_if_exists
 
 test_router = APIRouter(
     prefix='/tests',
@@ -22,40 +20,30 @@ test_router = APIRouter(
 @test_router.get(
     '/',
     status_code=200,
-    response_model=List[GetTest]
+    response_model=list[GetTest]
 )
 async def get_user_tests(
     database_session: AsyncSession = Depends(get_session),
-    user: User = Depends(get_current_user)
-) -> List[GetTest]:
+    auth: User = Depends(get_current_user)
+) -> list[GetTest]:
     async with TestManager(database_session) as test_manager:
-        tests = await test_manager.get_user_tests(user.id)
-
-        if not tests:
-            raise HTTPException(
-                status_code=404, detail='data not found'
-            )
-
+        tests = await test_manager.get_user_tests(auth.id)
+        await check_if_exist(tests)
     return tests
 
 
 @test_router.get(
     '/all/',
     status_code=200,
-    response_model=List[GetTest]
+    response_model=list[GetTest]
 )
 async def get_all_tests(
     database_session: AsyncSession = Depends(get_session)
-) -> List[GetTest]:
+) -> list[GetTest]:
     async with TestManager(database_session) as test_manager:
         tests = await test_manager.get_tests()
-
-        if not tests:
-            raise HTTPException(
-                status_code=404, detail='data not found'
-            )
-
-    return tests
+        await check_if_exists(tests)
+        return tests
 
 
 @test_router.post(
@@ -69,31 +57,13 @@ async def create_test(
     auth: User = Depends(get_current_user)
 ) -> GetTest:
     async with TestManager(database_session) as test_manager:
-        test.holder = auth.id
+        test.holder_id = auth.id
         result = await test_manager.create_test(test)
         if not result:
             raise HTTPException(
-                status_code=400, detail='test wat not created'
+                status_code=400, detail='Test wat not created'
             )
     return result
-
-
-@test_router.delete(
-    '/{test_id}/',
-    status_code=204,
-)
-async def delete_test(
-    test_id: int,
-    database_session: AsyncSession = Depends(get_session),
-    user: User = Depends(get_current_user)
-) -> Response:
-    async with TestManager(database_session) as test_manager:
-        result = await test_manager.delete_test(user, test_id)
-
-    if not result:
-        raise HTTPException(status_code=404, detail="data not found")
-
-    return Response()
 
 
 @test_router.get(
@@ -106,13 +76,9 @@ async def get_test(
     database_session: AsyncSession = Depends(get_session)
 ):
     async with TestManager(database_session) as test_manager:
-        result = await test_manager.get_test(test_id)
-
-    if not result:
-        raise HTTPException(
-            status_code=404, detail="data not found"
-        )
-    return result
+        test = await test_manager.get_test(test_id)
+        await check_if_exists(test)
+        return test
 
 
 @test_router.put(
@@ -127,11 +93,26 @@ async def update_test(
     auth: User = Depends(get_current_user)
 ):
     async with TestManager(database_session) as test_manager:
-        test.holder = auth.id
-        result = await test_manager.update_test(auth, test_id, test.dict())
-
-    if not result:
-        raise HTTPException(
-            status_code=404, detail="data not found"
+        test_object = await get_test(test_id, database_session)
+        await check_if_holder(auth.id, test_object.holder_id)
+        test = await test_manager.update_test(
+            test_id,
+            test.dict(exclude={"holder_id"}, exclude_unset=True)
         )
-    return result
+        return test
+
+
+@test_router.delete(
+    '/{test_id}/',
+    status_code=204,
+)
+async def delete_test(
+    test_id: int,
+    database_session: AsyncSession = Depends(get_session),
+    auth: User = Depends(get_current_user)
+) -> Response:
+    async with TestManager(database_session) as test_manager:
+        test_object = await get_test(test_id, database_session)
+        await check_if_holder(auth.id, test_object.holder_id)
+        await test_manager.delete_test(auth, test_id)
+        return Response(status_code=204)

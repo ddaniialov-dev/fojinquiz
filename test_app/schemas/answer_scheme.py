@@ -1,16 +1,21 @@
 from pydantic import BaseModel
 
 class CreateAnswer(BaseModel):
-    question: int
     text: str
     is_true: bool = False
 
     class Config:
         orm_mode = True
 
+class UpdateAnswer(BaseModel):
+    text: str | None
+    is_true: bool | None
+
+    class Config:
+        orm_mode = True
+
 class GetAnswer(BaseModel):
     id: int
-    question: int
     text: str
     is_true: bool
 

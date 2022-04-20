@@ -3,7 +3,6 @@ from pydantic import BaseModel
 
 class GetQuestion(BaseModel):
     id: int
-    test: int
     text: str
 
     class Config:
@@ -11,7 +10,6 @@ class GetQuestion(BaseModel):
 
 
 class CreateQuestion(BaseModel):
-    test: int
     text: str
 
     class Config:
@@ -19,8 +17,7 @@ class CreateQuestion(BaseModel):
 
 
 class UpdateQuestion(BaseModel):
-    test: int
-    text: str
+    text: str | None
 
     class Config:
         orm_mode = True

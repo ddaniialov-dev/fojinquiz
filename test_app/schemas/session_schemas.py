@@ -10,8 +10,8 @@ from test_app.schemas.question_schemas import GetQuestion
 class GetSession(BaseModel):
     id: int
     finished_date: datetime = None
-    user: int = None
-    test: int = None
+    user_id: int = None
+    test_id: int = None
     questions: List[GetQuestion]
 
     class Config:
@@ -19,8 +19,8 @@ class GetSession(BaseModel):
 
 
 class CreateSession(BaseModel):
-    user: int | None = None
-    test: int | None = None
+    user_id: int | None = None
+    test_id: int | None = None
     questions: List[GetQuestion] = []
 
     class Config:
