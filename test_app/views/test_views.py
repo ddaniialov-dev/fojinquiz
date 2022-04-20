@@ -66,23 +66,6 @@ async def create_test(
     return result
 
 
-@test_router.delete(
-    '/{test_id}/',
-    status_code=204,
-)
-async def delete_test(
-    test_id: int,
-    database_session: AsyncSession = Depends(get_session),
-    auth: User = Depends(get_current_user)
-) -> Response:
-    async with TestManager(database_session) as test_manager:
-        test = await test_manager.get_test(test_id)
-        await check_if_exists(test)
-        await check_if_holder(auth.id, test.holder_id)
-        await test_manager.delete_test(auth, test_id)
-        return Response(status_code=204)
-
-
 @test_router.get(
     '/{test_id}/',
     response_model=GetTest,
@@ -110,11 +93,26 @@ async def update_test(
     auth: User = Depends(get_current_user)
 ):
     async with TestManager(database_session) as test_manager:
-        test_object = await test_manager.get_test(test_id)
-        await check_if_exists(test_object)
+        test_object = await get_test(test_id, database_session)
         await check_if_holder(auth.id, test_object.holder_id)
         test = await test_manager.update_test(
             test_id,
             test.dict(exclude={"holder_id"}, exclude_unset=True)
         )
         return test
+
+
+@test_router.delete(
+    '/{test_id}/',
+    status_code=204,
+)
+async def delete_test(
+    test_id: int,
+    database_session: AsyncSession = Depends(get_session),
+    auth: User = Depends(get_current_user)
+) -> Response:
+    async with TestManager(database_session) as test_manager:
+        test_object = await get_test(test_id, database_session)
+        await check_if_holder(auth.id, test_object.holder_id)
+        await test_manager.delete_test(auth, test_id)
+        return Response(status_code=204)
