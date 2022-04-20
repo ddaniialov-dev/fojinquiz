@@ -90,11 +90,9 @@ async def update_question(
 ) -> GetQuestion:
     async with QuestionManager(database_session) as question_manager:
         test = await question_manager.get_test(test_id)
-        await check_if_exists(test)
-        await check_if_holder(auth.id, test.holder_id)
-        question_object = await question_manager.get_question(question_id)
-        await check_if_exists(question_object)
+        question_object = await get_question(question_id, test_id, auth, database_session)
         await check_if_test_has_question(test_id, question_object)
+        await check_if_holder(auth.id, test.holder_id)
         question = await question_manager.update_question(question.dict(exclude_unset=True), question_id)
         return question
 
@@ -111,11 +109,9 @@ async def delete_question(
 ) -> Response:
     async with QuestionManager(database_session) as question_manager:
         test = await question_manager.get_test(test_id)
-        await check_if_exists(test)
-        await check_if_holder(auth.id, test.holder_id)
-        question_object = await question_manager.get_question(question_id)
-        await check_if_exists(question_object)
+        question_object = await get_question(question_id, test_id, auth, database_session)
         await check_if_test_has_question(test_id, question_object)
+        await check_if_holder(auth.id, test.holder_id)
         await question_manager.delete_question(question_id)
         return Response(status_code=204)
 
