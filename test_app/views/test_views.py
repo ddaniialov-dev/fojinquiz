@@ -9,7 +9,7 @@ from quiz_project.utils.dependencies import get_current_user
 
 from test_app.crud import TestManager
 from test_app.schemas import GetTest, CreateTest, UpdateTest
-from test_app.checks import check_if_holder, check_if_exist, check_if_exists
+from test_app.checks.common import check_if_holder, check_if_exist, check_if_exists
 
 test_router = APIRouter(
     prefix='/tests',

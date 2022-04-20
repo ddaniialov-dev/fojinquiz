@@ -1,5 +1,4 @@
 import io
-from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, UploadFile, File, Response
@@ -7,7 +6,8 @@ from starlette.responses import StreamingResponse
 
 from test_app.crud import QuestionManager
 from test_app.schemas import UpdateQuestion, CreateQuestion, GetQuestion, ImageSchema
-from test_app.checks import check_if_exist, check_if_exists, check_if_holder, check_if_test_has_question
+from test_app.checks.common import check_if_exist, check_if_exists, check_if_holder
+from test_app.checks.questions import check_if_test_has_question
 
 from quiz_project.conf import Settings
 from quiz_project.database import get_session
@@ -25,13 +25,13 @@ question_router = APIRouter(
 @question_router.get(
     '/',
     status_code=200,
-    response_model=List[GetQuestion]
+    response_model=list[GetQuestion]
 )
 async def get_questions(
     test_id: int,
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session),
-) -> List[GetQuestion]:
+) -> list[GetQuestion]:
     async with QuestionManager(database_session) as question_manager:
         questions = await question_manager.get_questions(test_id)
         await check_if_exist(questions)
@@ -143,7 +143,7 @@ async def get_image(
 async def create_image(
     question_id: int,
     auth: User = Depends(get_current_user),
-    files: List[UploadFile] = File(...),
+    files: list[UploadFile] = File(...),
     database_session: AsyncSession = Depends(get_session)
 ) -> Response:
     async with QuestionManager(database_session) as question_manager:
