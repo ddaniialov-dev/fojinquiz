@@ -11,3 +11,5 @@ SECRET_KEY=secret
 
 
 To run project execute <docker-compose up> command
+
+To read API docs please go to <localhost/redoc>
