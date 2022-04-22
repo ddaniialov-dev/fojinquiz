@@ -1,13 +1,12 @@
 import re
 from typing import List
 
-from sqlalchemy import delete, select, update, and_
+from sqlalchemy import delete, select, and_
 from sqlalchemy.orm import joinedload
 
 from quiz_project.behaviours.base_manager import AbstractBaseManager
 from quiz_project.database import get_session
 from test_app.models import Session, Test
-from test_app.schemas import CreateSession
 from user_app.models import User
 
 
@@ -54,12 +53,12 @@ class SessionManager(AbstractBaseManager):
         session_object = await self.get_session(user.id, session_object.id)
         return session_object
 
-    async def delete_session(self, user: User, session_id: int):
+    async def delete_session(self, session_id: int):
         query = (
             delete(Session).
             returning(Session)
             .where(
-                and_(Session.id == session_id, Session.user == user.id)
+                and_(Session.id == session_id)
             )
         )
 

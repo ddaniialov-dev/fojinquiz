@@ -1,5 +1,3 @@
-from typing import List
-
 from datetime import datetime
 
 from pydantic import BaseModel
@@ -12,15 +10,7 @@ class GetSession(BaseModel):
     finished_date: datetime = None
     user_id: int = None
     test_id: int = None
-    questions: List[GetQuestion]
-
-    class Config:
-        orm_mode = True
-
-
-class CreateSession(BaseModel):
-    user_id: int | None = None
-    test_id: int | None = None
+    questions: list[GetQuestion]
 
     class Config:
         orm_mode = True
