@@ -9,7 +9,7 @@ from quiz_project.utils.dependencies import get_current_user
 from test_app.schemas import GetSession
 from test_app.crud import SessionManager
 from test_app.checks.common import check_if_exists, check_if_exist
-
+from test_app.checks.sessions import check_if_test_has_session
 
 session_router = APIRouter(
     prefix='/tests/{test_id}/sessions',
@@ -35,15 +35,38 @@ async def create_sesion(
 
 
 @session_router.get(
-    path='/',
+    '/',
     status_code=200,
     response_model=list[GetSession]
 )
 async def get_sessions(
+    test_id: int,
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ):
     async with SessionManager(database_session) as session_manager:
-        session_objects = await session_manager.get_sessions(auth.id)
+        test_object = await session_manager.get_test(test_id)
+        await check_if_exists(test_object)
+        session_objects = await session_manager.get_sessions(auth.id, test_id)
         await check_if_exist(session_objects)
         return session_objects
+
+
+@session_router.get(
+    '/{session_id}/',
+    status_code=200,
+    response_model=GetSession
+)
+async def get_session(
+    test_id: int,
+    session_id: int,
+    auth: User = Depends(get_current_user),
+    database_session: AsyncSession = Depends(get_session)
+):
+    async with SessionManager(database_session) as session_manager:
+        test_object = await session_manager.get_test(test_id)
+        await check_if_exists(test_object)
+        session_object = await session_manager.get_session(auth.id, test_id, session_id)
+        await check_if_exists(session_object)
+        await check_if_test_has_session(test_id, session_object)
+        return session_object
