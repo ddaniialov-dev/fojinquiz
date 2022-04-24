@@ -5,7 +5,8 @@ from test_app.views import (
     test_router,
     question_router,
     session_router,
-    answer_router
+    answer_router,
+    user_answer_router,
 )
 
 app = FastAPI()
