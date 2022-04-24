@@ -29,17 +29,15 @@ class SessionManager(AbstractBaseManager):
         result = await self._database_session.execute(query)
         return result.scalars().fetchall()
 
-    async def get_session(self, user_id: int, test_id: int, session_id: int) -> Session:
+    async def get_session(self, user_id: int, session_id: int) -> Session:
         query = (
             select(Session)
             .options(selectinload(Session.questions))
             .where(and_(
-                Session.id == session_id,
                 Session.user_id == user_id,
                 Session.id == session_id)
                 )
         )
-
         result = await self._database_session.execute(query)
         return result.scalar()
 

@@ -66,7 +66,7 @@ async def get_session(
     async with SessionManager(database_session) as manager:
         test_object = await manager.get_test(test_id)
         await check_if_exists(test_object)
-        session_object = await manager.get_session(auth.id, test_id, session_id)
+        session_object = await manager.get_session(auth.id, session_id)
         await check_if_exists(session_object)
         await check_if_test_has_session(test_id, session_object)
         return session_object

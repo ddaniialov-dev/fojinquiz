@@ -49,7 +49,7 @@ class Session(AbstractBaseModel):
     finished_date = Column(DateTime(timezone=True), nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     test_id = Column(Integer, ForeignKey("tests.id"))
-    questions = relationship("Question", secondary=session_question, backref=backref("sessions", lazy="selectin"))
+    questions = relationship("Question", secondary=session_question, lazy="selectin")
 
 
 class Image(AbstractBaseModel):
