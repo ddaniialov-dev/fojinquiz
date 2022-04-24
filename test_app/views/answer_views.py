@@ -28,11 +28,11 @@ async def create_answer(
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ):
-    async with AnswerManager(database_session) as answer_manager:
-        question_object = await answer_manager.get_question(question_id)        
+    async with AnswerManager(database_session) as manager:
+        question_object = await manager.get_question(question_id)        
         await check_if_exists(question_object)
         await check_if_holder(auth.id, question_object.test.holder_id)
-        answer_object = await answer_manager.create_answer(answer, question_id)
+        answer_object = await manager.create_answer(answer, question_id)
         return answer_object
 
 
@@ -46,11 +46,11 @@ async def get_answers(
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ):
-    async with AnswerManager(database_session) as answer_manager:
-        question_object = await answer_manager.get_question(question_id)
+    async with AnswerManager(database_session) as manager:
+        question_object = await manager.get_question(question_id)
         await check_if_exists(question_object)
         await check_if_holder(auth.id, question_object.test.holder_id)
-        answer_objects = await answer_manager.get_answers(question_id)
+        answer_objects = await manager.get_answers(question_id)
         return answer_objects
 
 
@@ -65,11 +65,11 @@ async def get_answer(
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ):
-    async with AnswerManager(database_session) as answer_manager:
-        question_object = await answer_manager.get_question(question_id)
+    async with AnswerManager(database_session) as manager:
+        question_object = await manager.get_question(question_id)
         await check_if_exists(question_object)
         await check_if_holder(auth.id, question_object.test.holder_id)
-        answer_object = await answer_manager.get_answer(answer_id)
+        answer_object = await manager.get_answer(answer_id)
         await check_if_exists(answer_object)
         await check_if_question_has_answer(question_id, answer_object)
         return answer_object
@@ -87,9 +87,9 @@ async def update_answer(
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ):
-    async with AnswerManager(database_session) as answer_manager:
+    async with AnswerManager(database_session) as manager:
         await get_answer(question_id, answer_id, auth, database_session) 
-        answer_object = await answer_manager.update_answer(answer_id, answer.dict(exclude_unset=True))
+        answer_object = await manager.update_answer(answer_id, answer.dict(exclude_unset=True))
         return answer_object
 
 
@@ -103,7 +103,7 @@ async def delete_answer(
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ):
-    async with AnswerManager(database_session) as answer_manager:
+    async with AnswerManager(database_session) as manager:
         await get_answer(question_id, answer_id, auth, database_session)
-        answer_object = await answer_manager.delete_answer(answer_id)
+        answer_object = await manager.delete_answer(answer_id)
         return Response(status_code=204)

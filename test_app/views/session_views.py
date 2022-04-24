@@ -22,15 +22,15 @@ session_router = APIRouter(
     status_code=201,
     response_model=GetSession
 )
-async def create_sesion(
+async def create_session(
     test_id: int,
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ):
-    async with SessionManager(database_session) as session_manager:
-        test_object = await session_manager.get_test(test_id)
+    async with SessionManager(database_session) as manager:
+        test_object = await manager.get_test(test_id)
         await check_if_exists(test_object)
-        session_object = await session_manager.create_session(test_object.id, auth)
+        session_object = await manager.create_session(test_object.id, auth)
         return session_object
 
 
@@ -44,10 +44,10 @@ async def get_sessions(
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ):
-    async with SessionManager(database_session) as session_manager:
-        test_object = await session_manager.get_test(test_id)
+    async with SessionManager(database_session) as manager:
+        test_object = await manager.get_test(test_id)
         await check_if_exists(test_object)
-        session_objects = await session_manager.get_sessions(auth.id, test_id)
+        session_objects = await manager.get_sessions(auth.id, test_id)
         await check_if_exist(session_objects)
         return session_objects
 
@@ -63,10 +63,10 @@ async def get_session(
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ):
-    async with SessionManager(database_session) as session_manager:
-        test_object = await session_manager.get_test(test_id)
+    async with SessionManager(database_session) as manager:
+        test_object = await manager.get_test(test_id)
         await check_if_exists(test_object)
-        session_object = await session_manager.get_session(auth.id, test_id, session_id)
+        session_object = await manager.get_session(auth.id, test_id, session_id)
         await check_if_exists(session_object)
         await check_if_test_has_session(test_id, session_object)
         return session_object
