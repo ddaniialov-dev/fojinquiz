@@ -30,5 +30,5 @@ async def get_current_user(
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    async with UserManager(db_session) as user_manager:
-        return await user_manager.get_user_by_username(auth.get_jwt_subject())
+    async with UserManager(db_session) as manager:
+        return await manager.get_user_by_username(auth.get_jwt_subject())
