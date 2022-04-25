@@ -18,7 +18,5 @@ class UserAnswerManager(AbstractBaseManager):
     async def create_user_answer(self, session: Session, data: dict) -> UserAnswer:
         user_answer = UserAnswer(session_id=session.id, **data)
         await self.create(user_answer)
-        # question_id = 
-        # question_object = [x for x in session.questions if x.id == question_id][0]
         session.questions.remove(user_answer.answer.question)
         return user_answer
