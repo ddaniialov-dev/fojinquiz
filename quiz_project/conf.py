@@ -20,6 +20,7 @@ class Settings:
 
 class JWTSettings(BaseModel):
     authjwt_secret_key = os.getenv('SECRET_KEY')
+    authjwt_token_location: set = {"cookies"}
 
 
 @AuthJWT.load_config
