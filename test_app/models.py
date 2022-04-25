@@ -7,14 +7,15 @@ session_question = Table('session_question', AbstractBaseModel.metadata,
     Column('question_id', ForeignKey('questions.id'), primary_key=True)
 )
 
+
 class Test(AbstractBaseModel):
     __tablename__ = "tests"
 
     title = Column(String(256))
     holder_id = Column(Integer, ForeignKey("users.id"))
     published = Column(Boolean)
-    questions = relationship("Question", backref=backref("test", lazy="joined"))
-    sessions = relationship("Session", backref=backref("test", lazy="joined"))
+    questions = relationship("Question", backref=backref("test", lazy="selectin"))
+    sessions = relationship("Session", backref=backref("test", lazy="selectin"))
 
 
 class Question(AbstractBaseModel):
@@ -22,9 +23,8 @@ class Question(AbstractBaseModel):
 
     test_id = Column(Integer, ForeignKey("tests.id"))
     text = Column(Text)
-    answers = relationship("Answer")
+    answers = relationship("Answer", backref=backref("question", lazy="selectin"))
     images = relationship("Image")
-    sessions = relationship("Session", secondary=session_question, back_populates='questions')
 
 
 class Answer(AbstractBaseModel):
@@ -33,7 +33,7 @@ class Answer(AbstractBaseModel):
     question_id = Column(Integer, ForeignKey("questions.id"))
     text = Column(Text)
     is_true = Column(Boolean, default=True)
-    user_answers = relationship("UserAnswer", backref=backref("answer", lazy="joined"))
+    user_answers = relationship("UserAnswer", backref=backref("answer", lazy="selectin"))
 
 
 class UserAnswer(AbstractBaseModel):
@@ -49,7 +49,7 @@ class Session(AbstractBaseModel):
     finished_date = Column(DateTime(timezone=True), nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     test_id = Column(Integer, ForeignKey("tests.id"))
-    questions = relationship("Question", secondary=session_question, back_populates='sessions')
+    questions = relationship("Question", secondary=session_question, lazy="selectin")
 
 
 class Image(AbstractBaseModel):

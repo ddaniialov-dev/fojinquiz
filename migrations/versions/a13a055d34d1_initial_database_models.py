@@ -1,8 +1,8 @@
-"""initial migration
+"""Initial database models
 
-Revision ID: 7f9557779545
+Revision ID: a13a055d34d1
 Revises: 
-Create Date: 2022-03-03 15:01:09.056765
+Create Date: 2022-04-24 10:05:41.945244
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '7f9557779545'
+revision = 'a13a055d34d1'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -33,56 +33,66 @@ def upgrade():
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('title', sa.String(length=256), nullable=True),
-    sa.Column('holder', sa.Integer(), nullable=True),
+    sa.Column('holder_id', sa.Integer(), nullable=True),
     sa.Column('published', sa.Boolean(), nullable=True),
-    sa.Column('published_date', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['holder'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['holder_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('questions',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
-    sa.Column('test', sa.Integer(), nullable=True),
+    sa.Column('test_id', sa.Integer(), nullable=True),
     sa.Column('text', sa.Text(), nullable=True),
-    sa.ForeignKeyConstraint(['test'], ['tests.id'], ),
+    sa.ForeignKeyConstraint(['test_id'], ['tests.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('sessions',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
-    sa.Column('finished_date', sa.DateTime(), nullable=True),
-    sa.Column('user', sa.Integer(), nullable=True),
-    sa.Column('test', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['test'], ['tests.id'], ),
-    sa.ForeignKeyConstraint(['user'], ['users.id'], ),
+    sa.Column('finished_date', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('test_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['test_id'], ['tests.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('answers',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
-    sa.Column('question', sa.Integer(), nullable=True),
+    sa.Column('question_id', sa.Integer(), nullable=True),
     sa.Column('text', sa.Text(), nullable=True),
     sa.Column('is_true', sa.Boolean(), nullable=True),
+    sa.ForeignKeyConstraint(['question_id'], ['questions.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('images',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('path', sa.Text(), nullable=True),
+    sa.Column('content_type', sa.Text(), nullable=True),
+    sa.Column('question', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['question'], ['questions.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('association',
-    sa.Column('question_id', sa.Integer(), nullable=True),
-    sa.Column('session_id', sa.Integer(), nullable=True),
+    op.create_table('session_question',
+    sa.Column('session_id', sa.Integer(), nullable=False),
+    sa.Column('question_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['question_id'], ['questions.id'], ),
-    sa.ForeignKeyConstraint(['session_id'], ['sessions.id'], )
+    sa.ForeignKeyConstraint(['session_id'], ['sessions.id'], ),
+    sa.PrimaryKeyConstraint('session_id', 'question_id')
     )
     op.create_table('user_answers',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
-    sa.Column('answer', sa.Integer(), nullable=True),
-    sa.Column('session', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['answer'], ['answers.id'], ),
-    sa.ForeignKeyConstraint(['session'], ['sessions.id'], ),
+    sa.Column('answer_id', sa.Integer(), nullable=True),
+    sa.Column('session_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['answer_id'], ['answers.id'], ),
+    sa.ForeignKeyConstraint(['session_id'], ['sessions.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
@@ -91,7 +101,8 @@ def upgrade():
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
     op.drop_table('user_answers')
-    op.drop_table('association')
+    op.drop_table('session_question')
+    op.drop_table('images')
     op.drop_table('answers')
     op.drop_table('sessions')
     op.drop_table('questions')

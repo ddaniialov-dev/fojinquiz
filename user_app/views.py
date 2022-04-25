@@ -27,8 +27,8 @@ async def login(
     auth: AuthJWT = Depends(),
     database_session: AsyncSession = Depends(get_session)
 ):
-    async with UserManager(database_session) as user_manager:
-        if not await user_manager.check_user_credentials(user.username, user.password):
+    async with UserManager(database_session) as manager:
+        if not await manager.check_user_credentials(user.username, user.password):
             raise HTTPException(
                 status_code=401, detail='username/password error'
             )
@@ -45,13 +45,13 @@ async def register(
     user: UserCreate,
     database_session: AsyncSession = Depends(get_session)
 ):
-    async with UserManager(database_session) as user_manager:
-        if await user_manager.get_user_by_username(username=user.username):
+    async with UserManager(database_session) as manager:
+        if await manager.get_user_by_username(username=user.username):
             raise HTTPException(
                 status_code=400, detail='User already registered'
             )
 
-        user = await user_manager.create_user(user=user)
+        user = await manager.create_user(user=user)
         token_pair = await obtain_auth_tokens(user, AuthJWT())
         return token_pair
 

@@ -26,8 +26,8 @@ async def get_user_tests(
     database_session: AsyncSession = Depends(get_session),
     auth: User = Depends(get_current_user)
 ) -> list[GetTest]:
-    async with TestManager(database_session) as test_manager:
-        tests = await test_manager.get_user_tests(auth.id)
+    async with TestManager(database_session) as manager:
+        tests = await manager.get_user_tests(auth.id)
         await check_if_exist(tests)
     return tests
 
@@ -40,8 +40,8 @@ async def get_user_tests(
 async def get_all_tests(
     database_session: AsyncSession = Depends(get_session)
 ) -> list[GetTest]:
-    async with TestManager(database_session) as test_manager:
-        tests = await test_manager.get_tests()
+    async with TestManager(database_session) as manager:
+        tests = await manager.get_tests()
         await check_if_exists(tests)
         return tests
 
@@ -56,9 +56,9 @@ async def create_test(
     database_session: AsyncSession = Depends(get_session),
     auth: User = Depends(get_current_user)
 ) -> GetTest:
-    async with TestManager(database_session) as test_manager:
+    async with TestManager(database_session) as manager:
         test.holder_id = auth.id
-        result = await test_manager.create_test(test)
+        result = await manager.create_test(test)
         if not result:
             raise HTTPException(
                 status_code=400, detail='Test wat not created'
@@ -75,8 +75,8 @@ async def get_test(
     test_id: int,
     database_session: AsyncSession = Depends(get_session)
 ):
-    async with TestManager(database_session) as test_manager:
-        test = await test_manager.get_test(test_id)
+    async with TestManager(database_session) as manager:
+        test = await manager.get_test(test_id)
         await check_if_exists(test)
         return test
 
@@ -92,10 +92,10 @@ async def update_test(
     database_session: AsyncSession = Depends(get_session),
     auth: User = Depends(get_current_user)
 ):
-    async with TestManager(database_session) as test_manager:
+    async with TestManager(database_session) as manager:
         test_object = await get_test(test_id, database_session)
         await check_if_holder(auth.id, test_object.holder_id)
-        test = await test_manager.update_test(
+        test = await manager.update_test(
             test_id,
             test.dict(exclude={"holder_id"}, exclude_unset=True)
         )
@@ -111,8 +111,8 @@ async def delete_test(
     database_session: AsyncSession = Depends(get_session),
     auth: User = Depends(get_current_user)
 ) -> Response:
-    async with TestManager(database_session) as test_manager:
+    async with TestManager(database_session) as manager:
         test_object = await get_test(test_id, database_session)
         await check_if_holder(auth.id, test_object.holder_id)
-        await test_manager.delete_test(auth, test_id)
+        await manager.delete_test(auth, test_id)
         return Response(status_code=204)

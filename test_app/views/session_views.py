@@ -1,42 +1,20 @@
-from typing import List
-
-from fastapi import Response
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
 from user_app.models import User
 
 from quiz_project.database import get_session
 from quiz_project.utils.dependencies import get_current_user
 
+from test_app.schemas import GetSession
 from test_app.crud import SessionManager
-from test_app.schemas import CreateSession, GetSession
-
+from test_app.checks.common import check_if_exists, check_if_exist
+from test_app.checks.sessions import check_if_test_has_session
 
 session_router = APIRouter(
-    prefix='/sessions',
+    prefix='/tests/{test_id}/sessions',
     tags=['sessions'],
 )
-
-
-@session_router.get(
-    '/',
-    status_code=200,
-    response_model=List[GetSession]
-)
-async def get_user_sessions(
-    auth: User = Depends(get_current_user),
-    database_session: AsyncSession = Depends(get_session)
-) -> List[GetSession]:
-    async with SessionManager(database_session) as session_manager:
-        sessions = await session_manager.get_sessions(auth.id)
-
-    if not sessions:
-        raise HTTPException(
-            status_code=404, detail="data not found"
-        )
-
-    return sessions
 
 
 @session_router.post(
@@ -45,15 +23,33 @@ async def get_user_sessions(
     response_model=GetSession
 )
 async def create_session(
-    session_scheme: CreateSession,
+    test_id: int,
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
-) -> GetSession:
-    async with SessionManager(database_session) as session_manager:
-        session_scheme.user = auth.id
-        session_object = await session_manager.create_session(auth, session_scheme)
+):
+    async with SessionManager(database_session) as manager:
+        test_object = await manager.get_test(test_id)
+        await check_if_exists(test_object)
+        session_object = await manager.create_session(test_object.id, auth)
+        return session_object
 
-    return session_object
+
+@session_router.get(
+    '/',
+    status_code=200,
+    response_model=list[GetSession]
+)
+async def get_sessions(
+    test_id: int,
+    auth: User = Depends(get_current_user),
+    database_session: AsyncSession = Depends(get_session)
+):
+    async with SessionManager(database_session) as manager:
+        test_object = await manager.get_test(test_id)
+        await check_if_exists(test_object)
+        session_objects = await manager.get_sessions(auth.id, test_id)
+        await check_if_exist(session_objects)
+        return session_objects
 
 
 @session_router.get(
@@ -61,38 +57,16 @@ async def create_session(
     status_code=200,
     response_model=GetSession
 )
-async def get_session_object(
+async def get_session(
+    test_id: int,
     session_id: int,
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ):
-    async with SessionManager(database_session) as session_manager:
-        session = await session_manager.get_session(auth.id, session_id)
-
-    if not session:
-        raise HTTPException(
-            status_code=404, detail="data not found"
-        )
-
-    return session
-
-
-@session_router.delete(
-    '/{session_id}/',
-    status_code=204,
-)
-async def delete_session(
-    session_id: int,
-    auth: User = Depends(get_current_user),
-    database_session: AsyncSession = Depends(get_session)
-):
-    async with SessionManager(database_session) as session_manager:
-        result = await session_manager.delete_session(auth, session_id)
-
-    if not result:
-        raise HTTPException(
-            status_code=404,
-            detail="data not found"
-        )
-
-    return Response(status_code=204)
+    async with SessionManager(database_session) as manager:
+        test_object = await manager.get_test(test_id)
+        await check_if_exists(test_object)
+        session_object = await manager.get_session(auth.id, session_id)
+        await check_if_exists(session_object)
+        await check_if_test_has_session(test_id, session_object)
+        return session_object

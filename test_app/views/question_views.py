@@ -32,8 +32,8 @@ async def get_questions(
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session),
 ) -> list[GetQuestion]:
-    async with QuestionManager(database_session) as question_manager:
-        questions = await question_manager.get_questions(test_id)
+    async with QuestionManager(database_session) as manager:
+        questions = await manager.get_questions(test_id)
         await check_if_exist(questions)
         return questions
 
@@ -49,11 +49,11 @@ async def create_question(
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ) -> GetQuestion:
-    async with QuestionManager(database_session) as question_manager:
-        test = await question_manager.get_test(test_id)
+    async with QuestionManager(database_session) as manager:
+        test = await manager.get_test(test_id)
         await check_if_exists(test)
         await check_if_holder(auth.id, test.holder_id)
-        question_object = await question_manager.create_question(question, test_id)
+        question_object = await manager.create_question(question, test_id)
         return question_object
 
 @question_router.get(
@@ -67,10 +67,10 @@ async def get_question(
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ) -> GetQuestion:
-    async with QuestionManager(database_session) as question_manager:
-        test = await question_manager.get_test(test_id)
+    async with QuestionManager(database_session) as manager:
+        test = await manager.get_test(test_id)
         await check_if_exists(test)
-        question = await question_manager.get_question(question_id)
+        question = await manager.get_question(question_id)
         await check_if_exists(question)
         await check_if_test_has_question(test_id, question)
         return question
@@ -88,12 +88,12 @@ async def update_question(
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ) -> GetQuestion:
-    async with QuestionManager(database_session) as question_manager:
-        test = await question_manager.get_test(test_id)
+    async with QuestionManager(database_session) as manager:
+        test = await manager.get_test(test_id)
         question_object = await get_question(question_id, test_id, auth, database_session)
         await check_if_test_has_question(test_id, question_object)
         await check_if_holder(auth.id, test.holder_id)
-        question = await question_manager.update_question(question.dict(exclude_unset=True), question_id)
+        question = await manager.update_question(question.dict(exclude_unset=True), question_id)
         return question
 
 
@@ -107,12 +107,12 @@ async def delete_question(
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ) -> Response:
-    async with QuestionManager(database_session) as question_manager:
-        test = await question_manager.get_test(test_id)
+    async with QuestionManager(database_session) as manager:
+        test = await manager.get_test(test_id)
         question_object = await get_question(question_id, test_id, auth, database_session)
         await check_if_test_has_question(test_id, question_object)
         await check_if_holder(auth.id, test.holder_id)
-        await question_manager.delete_question(question_id)
+        await manager.delete_question(question_id)
         return Response(status_code=204)
 
 
@@ -125,8 +125,8 @@ async def get_image(
     auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session)
 ) -> StreamingResponse:
-    async with QuestionManager(database_session) as question_manager:
-        image = await question_manager.get_image(question_id)
+    async with QuestionManager(database_session) as manager:
+        image = await manager.get_image(question_id)
         byte_data = await get_file(Settings.MEDIA_ROOT + image.path)
 
     return StreamingResponse(io.BytesIO(byte_data), media_type=image.content_type)
@@ -142,7 +142,7 @@ async def create_image(
     files: list[UploadFile] = File(...),
     database_session: AsyncSession = Depends(get_session)
 ) -> Response:
-    async with QuestionManager(database_session) as question_manager:
+    async with QuestionManager(database_session) as manager:
         for file in files:
             byte_data = await file.read()
 
@@ -152,6 +152,6 @@ async def create_image(
                 question=question_id
             )
             await save_file(Settings.MEDIA_ROOT + file.filename, byte_data)
-            await question_manager.create_image(image_structure)
+            await manager.create_image(image_structure)
 
     return Response(status_code=201)
