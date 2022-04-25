@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Depends, HTTPException
+from fastapi import APIRouter, Response, status, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi_jwt_auth import AuthJWT
 
@@ -52,12 +52,8 @@ async def register(
             )
 
         user = await manager.create_user(user=user)
-        token_pair = await obtain_auth_tokens(user, AuthJWT())
-        return token_pair
+        return Response(status_code=201, detail="Registered Succesful")
 
-    raise HTTPException(
-        status_code=400, detail='Bad Request'
-    )
 
 
 @user_router.post(
