@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Depends, HTTPException
+from fastapi import APIRouter, Response, status, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi_jwt_auth import AuthJWT
 
@@ -52,12 +52,8 @@ async def register(
             )
 
         user = await manager.create_user(user=user)
-        token_pair = await obtain_auth_tokens(user, AuthJWT())
-        return token_pair
+        return Response(status_code=201, detail="Registered Succesful")
 
-    raise HTTPException(
-        status_code=400, detail='Bad Request'
-    )
 
 
 @user_router.post(
@@ -72,7 +68,7 @@ async def refresh(
 
     user = auth.get_jwt_subject()
     new_access_token = auth.create_access_token(subject=user)
-
+    auth.set_access_cookies(new_access_token)
     return {
         'access_token': new_access_token
     }
@@ -92,8 +88,21 @@ async def get_me(
 async def obtain_auth_tokens(user: UserCreate, auth: AuthJWT) -> dict:
     refresh_token = auth.create_refresh_token(subject=user.username, expires_time=False)
     access_token = auth.create_access_token(subject=user.username, expires_time=False)
-
+    auth.set_access_cookies(access_token)
+    auth.set_refresh_cookies(refresh_token)
     return {
         'access_token': access_token,
         'refresh_token': refresh_token
     }
+
+@user_router.delete('/logout')
+def logout(auth: AuthJWT = Depends()):
+    """
+    Because the JWT are stored in an httponly cookie now, we cannot
+    log the user out by simply deleting the cookies in the frontend.
+    We need the backend to send us a response to delete the cookies.
+    """
+    auth.jwt_required()
+
+    auth.unset_jwt_cookies()
+    return {"msg":"Successfully logout"}
