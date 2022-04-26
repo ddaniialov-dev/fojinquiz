@@ -52,7 +52,7 @@ async def register(
             )
 
         user = await manager.create_user(user=user)
-        return Response(status_code=201, detail="Registered Succesful")
+        return JSONResponse(content={"detail": "Registered"}, status_code=201)
 
 
 
