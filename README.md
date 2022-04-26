@@ -9,6 +9,8 @@ POSTGRES_HOST=example
 MEDIA_ROOT=/media/
 SECRET_KEY=secret
 
+### To accept migrations
+- docker exec -ti exceedteamquiz-web-1 alembic upgrade head
 
 To run project execute <docker-compose up> command
 
