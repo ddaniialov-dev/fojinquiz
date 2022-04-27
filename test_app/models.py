@@ -14,8 +14,8 @@ class Test(AbstractBaseModel):
     title = Column(String(256))
     holder_id = Column(Integer, ForeignKey("users.id"))
     published = Column(Boolean)
-    questions = relationship("Question", backref=backref("test", lazy="selectin"))
-    sessions = relationship("Session", backref=backref("test", lazy="selectin"))
+    questions = relationship("Question", backref=backref("test"), lazy="selectin")
+    sessions = relationship("Session", backref=backref("test"), lazy="selectin")
 
 
 class Question(AbstractBaseModel):
@@ -23,7 +23,7 @@ class Question(AbstractBaseModel):
 
     test_id = Column(Integer, ForeignKey("tests.id"))
     text = Column(Text)
-    answers = relationship("Answer", backref=backref("question", lazy="selectin"))
+    answers = relationship("Answer", backref=backref("question"), lazy="selectin")
     images = relationship("Image")
     ordering = Column(Integer, CheckConstraint('ordering>0'), unique=True)
 
@@ -34,7 +34,7 @@ class Answer(AbstractBaseModel):
     question_id = Column(Integer, ForeignKey("questions.id"))
     text = Column(Text)
     is_true = Column(Boolean, default=True)
-    user_answers = relationship("UserAnswer", backref=backref("answer", lazy="selectin"))
+    user_answers = relationship("UserAnswer", backref=backref("answer"), lazy="selectin")
 
 
 class UserAnswer(AbstractBaseModel):

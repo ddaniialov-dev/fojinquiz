@@ -19,6 +19,7 @@ class CreateQuestion(BaseModel):
 
 class UpdateQuestion(BaseModel):
     text: str | None
+    ordering: int | None
 
     class Config:
         orm_mode = True

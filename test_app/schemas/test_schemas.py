@@ -11,7 +11,7 @@ class GetTest(BaseModel):
     created_at: datetime
     modified_at: datetime | None
     title: str | None
-    questions: list[GetQuestion]
+    questions: list[GetQuestion] | list
 
     class Config:
         orm_mode = True

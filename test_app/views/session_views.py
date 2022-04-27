@@ -48,7 +48,6 @@ async def get_sessions(
         test_object = await manager.get_test(test_id)
         await check_if_exists(test_object)
         session_objects = await manager.get_sessions(auth.id, test_id)
-        await check_if_exist(session_objects)
         return session_objects
 
 

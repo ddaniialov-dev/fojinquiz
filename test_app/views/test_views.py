@@ -28,7 +28,6 @@ async def get_user_tests(
 ) -> list[GetTest]:
     async with TestManager(database_session) as manager:
         tests = await manager.get_user_tests(auth.id)
-        await check_if_exist(tests)
     return tests
 
 
@@ -63,7 +62,7 @@ async def create_test(
             raise HTTPException(
                 status_code=400, detail='Test wat not created'
             )
-    return result
+        return result
 
 
 @test_router.get(

@@ -19,6 +19,7 @@ class TestManager(AbstractBaseManager):
     async def get_user_tests(self, user_id: int) -> List[Test]:
         query = (
             select(Test)
+            .options(selectinload(Test.questions))
             .where(Test.holder_id == user_id)
         )
 

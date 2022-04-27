@@ -32,12 +32,22 @@ class QuestionManager(AbstractBaseManager):
         result = await self._database_session.execute(query)
         return result.scalars().one_or_none()
 
-    async def create_question(self, question: CreateQuestion, test_id: int) -> Question:
-        question_object = Question(**question.dict(), test_id=test_id)
+    async def create_question(self, question: CreateQuestion, test: Test) -> Question:
+        question_object = Question(**question.dict(), test_id=test.id, ordering=len(test.questions) + 1)
         await self.create(question_object)
         return question_object
 
     async def update_question(self, data: dict, question_id: int) -> Question:
+        if "ordering" in data.keys():
+            ordering = data["ordering"]
+        query = (
+            select(Question)
+            .where(Question.id == question_id)
+        )
+
+        result = await self._database_session.execute(query)
+        question = result.scalar()
+
         query = (
             update(Question)
             .returning(Question)
