@@ -4,6 +4,7 @@ from pydantic import BaseModel
 class GetQuestion(BaseModel):
     id: int
     text: str
+    ordering: int
 
     class Config:
         orm_mode = True

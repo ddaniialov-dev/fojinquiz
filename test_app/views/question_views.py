@@ -53,6 +53,7 @@ async def create_question(
         test = await manager.get_test(test_id)
         await check_if_exists(test)
         await check_if_holder(auth.id, test.holder_id)
+        question.dict()["ordering"] = len(test.questions) + 1
         question_object = await manager.create_question(question, test_id)
         return question_object
 

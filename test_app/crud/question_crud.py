@@ -1,6 +1,7 @@
 from typing import List
 
 from sqlalchemy import select, update, and_, delete
+from sqlalchemy.orm import selectinload
 
 from test_app.schemas import CreateQuestion, UpdateQuestion
 from test_app.models import Image, Question, Test
@@ -14,6 +15,7 @@ class QuestionManager(AbstractBaseManager):
     async def get_test(self, test_id: int) -> Test:
         query = (
             select(Test)
+            .options(selectinload(Test.questions))
             .where(Test.id == test_id)
         )
 

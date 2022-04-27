@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, DateTime, Text, Table, String
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, DateTime, Text, Table, String, CheckConstraint
 from sqlalchemy.orm import relationship, backref
 from quiz_project.behaviours.base_model import AbstractBaseModel
 
@@ -25,6 +25,7 @@ class Question(AbstractBaseModel):
     text = Column(Text)
     answers = relationship("Answer", backref=backref("question", lazy="selectin"))
     images = relationship("Image")
+    ordering = Column(Integer, CheckConstraint('ordering>0'), unique=True)
 
 
 class Answer(AbstractBaseModel):
@@ -58,4 +59,3 @@ class Image(AbstractBaseModel):
     path = Column(Text)
     content_type = Column(Text)
     question = Column(Integer, ForeignKey("questions.id"))
-
