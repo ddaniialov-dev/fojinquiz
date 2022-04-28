@@ -36,11 +36,19 @@ class UserManager(AbstractBaseManager):
         response = await self._database_session.execute(query)
         return response.scalars().all()
 
-    async def create_user(self, user: UserCreate):
+    async def hash_password(self, user: UserCreate):
         salt = uuid5(NAMESPACE_X500, user.username).hex.encode()
         password = user.password.encode()
         hashed_password = hashlib.sha512(password + salt).hexdigest()
-        db_user = User(username=user.username, hashed_password=hashed_password)
+        return hashed_password
+
+    async def create_user(self, user: UserCreate):
+        password = await self.hash_password(user)
+        db_user = User(
+            username=user.username,
+            hashed_password=password,
+            email=user.email
+        )
         await self.create(db_user)
 
         return db_user

@@ -1,3 +1,4 @@
+from enum import unique
 from sqlalchemy import Boolean, Column, String, Integer
 from sqlalchemy.orm import relationship, backref
 
@@ -9,6 +10,7 @@ class User(AbstractBaseModel):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String, unique=True, index=True, nullable=False)
+    email = Column(String, unique=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
     tests = relationship("Test", backref=backref("holder", lazy="joined"))
