@@ -38,16 +38,25 @@ class QuestionManager(AbstractBaseManager):
         return question_object
 
     async def update_question(self, data: dict, question_id: int) -> Question:
-        if "ordering" in data.keys():
-            ordering = data["ordering"]
-        query = (
-            select(Question)
-            .where(Question.id == question_id)
-        )
-
-        result = await self._database_session.execute(query)
-        question = result.scalar()
-
+        ordering = data.get("ordering")
+        if ordering:
+            query = select(Question)
+            result = await self._database_session.execute(query)
+            questions = result.scalars().fetchall()
+            question_object = list(filter(lambda x: x.id == question_id, questions))[0]
+            if ordering > question_object.ordering:
+                for question in questions:
+                    if question.ordering in range(question_object.ordering + 1, ordering + 1):
+                        question.ordering -= 1
+                question_object.ordering = ordering
+            elif ordering < question_object.ordering:
+                for question in questions:
+                    if question.ordering in range(ordering, question_object.ordering + 1):
+                        question.ordering += 1
+                question_object.ordering = ordering
+            self._database_session.commit()
+            data.pop("ordering")
+            
         query = (
             update(Question)
             .returning(Question)
