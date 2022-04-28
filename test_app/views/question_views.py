@@ -34,7 +34,6 @@ async def get_questions(
 ) -> list[GetQuestion]:
     async with QuestionManager(database_session) as manager:
         questions = await manager.get_questions(test_id)
-        await check_if_exist(questions)
         return questions
 
 
@@ -53,7 +52,7 @@ async def create_question(
         test = await manager.get_test(test_id)
         await check_if_exists(test)
         await check_if_holder(auth.id, test.holder_id)
-        question_object = await manager.create_question(question, test_id)
+        question_object = await manager.create_question(question, test)
         return question_object
 
 @question_router.get(

@@ -2,6 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
+from test_app.schemas.question_schemas import GetQuestion
 
 class GetTest(BaseModel):
     id: int
@@ -10,6 +11,7 @@ class GetTest(BaseModel):
     created_at: datetime
     modified_at: datetime | None
     title: str | None
+    questions: list[GetQuestion] | list
 
     class Config:
         orm_mode = True
