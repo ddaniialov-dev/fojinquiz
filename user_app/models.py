@@ -13,5 +13,15 @@ class User(AbstractBaseModel):
     email = Column(String, unique=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
-    tests = relationship("Test", backref=backref("holder", lazy="selectin"), lazy="selectin")
-    sessions = relationship("Session", backref=backref("user", lazy="selectin"), lazy="selectin")
+    tests = relationship(
+        "Test",
+        backref=backref("holder", lazy="selectin"),
+        lazy="selectin",
+        cascade="all, delete"
+    )
+    sessions = relationship(
+        "Session", 
+        backref=backref("user", lazy="selectin"), 
+        lazy="selectin",
+        cascade="all, delete"
+)
