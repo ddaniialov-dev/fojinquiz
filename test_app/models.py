@@ -25,7 +25,7 @@ class Question(AbstractBaseModel):
     text = Column(Text)
     answers = relationship("Answer", backref=backref("question"), lazy="selectin")
     images = relationship("Image")
-    ordering = Column(Integer, CheckConstraint('ordering>0'), unique=True)
+    ordering = Column(Integer, CheckConstraint('ordering>0'))
 
 
 class Answer(AbstractBaseModel):
