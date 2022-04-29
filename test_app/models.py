@@ -1,10 +1,26 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, DateTime, Text, Table, String, CheckConstraint
+from sqlalchemy import (
+    Boolean,
+    Column,
+    ForeignKey,
+    Integer,
+    DateTime,
+    Text,
+    Table,
+    String,
+    CheckConstraint,
+)
 from sqlalchemy.orm import relationship, backref
 from quiz_project.behaviours.base_model import AbstractBaseModel
 
-session_question = Table('session_question', AbstractBaseModel.metadata,
-    Column('session_id', ForeignKey('sessions.id', ondelete="CASCADE"), primary_key=True),
-    Column('question_id', ForeignKey('questions.id', ondelete="CASCADE"), primary_key=True)
+session_question = Table(
+    "session_question",
+    AbstractBaseModel.metadata,
+    Column(
+        "session_id", ForeignKey("sessions.id", ondelete="CASCADE"), primary_key=True
+    ),
+    Column(
+        "question_id", ForeignKey("questions.id", ondelete="CASCADE"), primary_key=True
+    ),
 )
 
 
@@ -18,13 +34,13 @@ class Test(AbstractBaseModel):
         "Question",
         backref=backref("test", lazy="selectin"),
         lazy="selectin",
-        cascade="all, delete"
+        cascade="all, delete",
     )
     sessions = relationship(
         "Session",
         backref=backref("test", lazy="selectin"),
         lazy="selectin",
-        cascade="all, delete"
+        cascade="all, delete",
     )
 
 
@@ -39,10 +55,10 @@ class Question(AbstractBaseModel):
         lazy="selectin",
     )
     images = relationship(
-        "Image", 
+        "Image",
         lazy="selectin",
     )
-    ordering = Column(Integer, CheckConstraint('ordering>0'))
+    ordering = Column(Integer, CheckConstraint("ordering>0"))
 
 
 class Answer(AbstractBaseModel):
@@ -55,7 +71,7 @@ class Answer(AbstractBaseModel):
         "UserAnswer",
         backref=backref("answer", lazy="selectin"),
         lazy="selectin",
-        cascade="all, delete"
+        cascade="all, delete",
     )
 
 
@@ -73,15 +89,12 @@ class Session(AbstractBaseModel):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     test_id = Column(Integer, ForeignKey("tests.id", ondelete="CASCADE"))
     questions = relationship(
-        "Question",
-        secondary=session_question,
-        lazy="selectin",
-        cascade="all, delete"
+        "Question", secondary=session_question, lazy="selectin", cascade="all, delete"
     )
 
 
 class Image(AbstractBaseModel):
-    __tablename__ = 'images'
+    __tablename__ = "images"
 
     path = Column(Text)
     content_type = Column(Text)

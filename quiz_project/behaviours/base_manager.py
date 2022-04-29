@@ -1,9 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-
 class AbstractBaseManager:
-
     def __init__(self, database: AsyncSession):
         self._database_session = database
 

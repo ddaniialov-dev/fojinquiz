@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 from test_app.schemas.question_schemas import GetQuestion
 
+
 class GetTest(BaseModel):
     id: int
     holder_id: int

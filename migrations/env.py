@@ -57,7 +57,7 @@ async def run_migrations_online():
     and associate a connection with the context.
     """
     alembic_config = config.get_section(config.config_ini_section)
-    alembic_config['sqlalchemy.url'] = Settings.DATABASE_URL
+    alembic_config["sqlalchemy.url"] = Settings.DATABASE_URL
     connectable = AsyncEngine(
         engine_from_config(
             alembic_config,

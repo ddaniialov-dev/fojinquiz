@@ -4,7 +4,6 @@ from collections import OrderedDict
 
 
 class Cache:
-
     def __init__(self, capacity: int):
         self.capacity = capacity
         self.cache = OrderedDict()
@@ -34,16 +33,13 @@ class Cache:
 
 
 class CacheWrapper:
-
     def __init__(self, capacity: int):
         self.__cache = Cache(capacity)
 
     def __call__(self, func):
         @functools.wraps(func)
         def wrapped(*args, **kwargs):
-            cache_key = (
-                self.__freeze(args), self.__freeze(kwargs)
-            )
+            cache_key = (self.__freeze(args), self.__freeze(kwargs))
             if cache_key in self.__cache:
                 return self.__cache[cache_key]
 
@@ -55,13 +51,9 @@ class CacheWrapper:
 
     def __freeze(self, obj):
         if isinstance(obj, dict):
-            return frozenset(
-                (key, self.__freeze(value)) for key, value in obj.items()
-            )
+            return frozenset((key, self.__freeze(value)) for key, value in obj.items())
         elif isinstance(obj, list):
-            return tuple(
-                self.__freeze(value) for value in obj
-            )
+            return tuple(self.__freeze(value) for value in obj)
         elif isinstance(obj, set):
             return tuple(obj)
         return obj

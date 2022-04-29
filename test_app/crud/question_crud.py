@@ -11,12 +11,9 @@ from user_app.models import User
 
 
 class QuestionManager(AbstractBaseManager):
-
     async def get_test(self, test_id: int) -> Test:
         query = (
-            select(Test)
-            .options(selectinload(Test.questions))
-            .where(Test.id == test_id)
+            select(Test).options(selectinload(Test.questions)).where(Test.id == test_id)
         )
 
         result = await self._database_session.execute(query)
@@ -33,7 +30,9 @@ class QuestionManager(AbstractBaseManager):
         return result.scalars().one_or_none()
 
     async def create_question(self, question: CreateQuestion, test: Test) -> Question:
-        question_object = Question(**question.dict(), test_id=test.id, ordering=len(test.questions) + 1)
+        question_object = Question(
+            **question.dict(), test_id=test.id, ordering=len(test.questions) + 1
+        )
         await self.create(question_object)
         return question_object
 
@@ -46,17 +45,21 @@ class QuestionManager(AbstractBaseManager):
             question_object = list(filter(lambda x: x.id == question_id, questions))[0]
             if ordering > question_object.ordering:
                 for question in questions:
-                    if question.ordering in range(question_object.ordering + 1, ordering + 1):
+                    if question.ordering in range(
+                        question_object.ordering + 1, ordering + 1
+                    ):
                         question.ordering -= 1
                 question_object.ordering = ordering
             elif ordering < question_object.ordering:
                 for question in questions:
-                    if question.ordering in range(ordering, question_object.ordering + 1):
+                    if question.ordering in range(
+                        ordering, question_object.ordering + 1
+                    ):
                         question.ordering += 1
                 question_object.ordering = ordering
             self._database_session.commit()
             data.pop("ordering")
-            
+
         query = (
             update(Question)
             .returning(Question)
@@ -67,18 +70,11 @@ class QuestionManager(AbstractBaseManager):
         return response.first()
 
     async def delete_question(self, question_id: int) -> None:
-        query = (
-            delete(Question)
-            .returning(Question)
-            .where(Question.id == question_id)
-        )
+        query = delete(Question).returning(Question).where(Question.id == question_id)
         await self._database_session.execute(query)
 
     async def get_image(self, question_id: int) -> Image:
-        query = (
-            select(Image)
-            .where(Image.question == question_id)
-        )
+        query = select(Image).where(Image.question == question_id)
         response = await self._database_session.execute(query)
         return response.scalars().one_or_none()
 

@@ -11,7 +11,6 @@ from .schemas import UserCreate
 
 
 class UserManager(AbstractBaseManager):
-    
     async def check_user_credentials(self, username: str, password: str):
         salt = uuid5(NAMESPACE_X500, username).hex.encode()
         hashed_password = hashlib.sha512(password.encode() + salt).hexdigest()
@@ -45,9 +44,7 @@ class UserManager(AbstractBaseManager):
     async def create_user(self, user: UserCreate):
         password = await self.hash_password(user)
         db_user = User(
-            username=user.username,
-            hashed_password=password,
-            email=user.email
+            username=user.username, hashed_password=password, email=user.email
         )
         await self.create(db_user)
 

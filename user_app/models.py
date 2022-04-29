@@ -18,11 +18,11 @@ class User(AbstractBaseModel):
         "Test",
         backref=backref("holder", lazy="selectin"),
         lazy="selectin",
-        cascade="all, delete"
+        cascade="all, delete",
     )
     sessions = relationship(
-        "Session", 
-        backref=backref("user", lazy="selectin"), 
+        "Session",
+        backref=backref("user", lazy="selectin"),
         lazy="selectin",
-        cascade="all, delete"
-)
+        cascade="all, delete",
+    )

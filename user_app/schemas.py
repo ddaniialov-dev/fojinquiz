@@ -11,6 +11,7 @@ class UserGet(BaseModel):
     class Config:
         orm_mode = True
 
+
 class UserLogin(BaseModel):
     username: str
     password: str
@@ -19,12 +20,12 @@ class UserLogin(BaseModel):
         orm_mode = True
 
     @validator(
-        'username',
-        'password',
+        "username",
+        "password",
     )
     def blank_string(cls, value):
         if not value:
-            raise ValueError('Can not be used')
+            raise ValueError("Can not be used")
         return value
 
 
@@ -37,13 +38,13 @@ class UserCreate(BaseModel):
         orm_mode = True
 
     @validator(
-        'username',
-        'password',
-        'email',
+        "username",
+        "password",
+        "email",
     )
     def blank_string(cls, value):
         if not value:
-            raise ValueError('Can not be used')
+            raise ValueError("Can not be used")
         return value
 
     @validator("email")
@@ -51,4 +52,3 @@ class UserCreate(BaseModel):
         if not v.endswith(".exceedteam@gmail.com"):
             raise ValueError("Email does not match")
         return v
-    
