@@ -1,6 +1,7 @@
 from fastapi import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException
+from user_app.crud import UserManager
 
 from user_app.models import User
 
@@ -55,6 +56,12 @@ async def create_test(
     database_session: AsyncSession = Depends(get_session),
     auth: User = Depends(get_current_user)
 ) -> GetTest:
+    async with UserManager(database_session) as manager:
+        user = await manager.get_user(auth.id)
+        if not user.is_admin:
+            raise HTTPException(
+                status_code=403, detail="You need to be an administrator to create tests!"
+            )
     async with TestManager(database_session) as manager:
         test.holder_id = auth.id
         result = await manager.create_test(test)
