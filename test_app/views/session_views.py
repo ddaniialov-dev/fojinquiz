@@ -12,20 +12,16 @@ from test_app.checks.common import check_if_exists, check_if_exist
 from test_app.checks.sessions import check_if_test_has_session
 
 session_router = APIRouter(
-    prefix='/tests/{test_id}/sessions',
-    tags=['sessions'],
+    prefix="/tests/{test_id}/sessions",
+    tags=["sessions"],
 )
 
 
-@session_router.post(
-    '/',
-    status_code=201,
-    response_model=GetSession
-)
+@session_router.post("/", status_code=201, response_model=GetSession)
 async def create_session(
     test_id: int,
     auth: User = Depends(get_current_user),
-    database_session: AsyncSession = Depends(get_session)
+    database_session: AsyncSession = Depends(get_session),
 ):
     async with SessionManager(database_session) as manager:
         test_object = await manager.get_test(test_id)
@@ -34,15 +30,11 @@ async def create_session(
         return session_object
 
 
-@session_router.get(
-    '/',
-    status_code=200,
-    response_model=list[GetSession]
-)
+@session_router.get("/", status_code=200, response_model=list[GetSession])
 async def get_sessions(
     test_id: int,
     auth: User = Depends(get_current_user),
-    database_session: AsyncSession = Depends(get_session)
+    database_session: AsyncSession = Depends(get_session),
 ):
     async with SessionManager(database_session) as manager:
         test_object = await manager.get_test(test_id)
@@ -51,16 +43,12 @@ async def get_sessions(
         return session_objects
 
 
-@session_router.get(
-    '/{session_id}/',
-    status_code=200,
-    response_model=GetSession
-)
+@session_router.get("/{session_id}/", status_code=200, response_model=GetSession)
 async def get_session(
     test_id: int,
     session_id: int,
     auth: User = Depends(get_current_user),
-    database_session: AsyncSession = Depends(get_session)
+    database_session: AsyncSession = Depends(get_session),
 ):
     async with SessionManager(database_session) as manager:
         test_object = await manager.get_test(test_id)

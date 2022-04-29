@@ -12,39 +12,31 @@ from user_app.models import User
 
 
 answer_router = APIRouter(
-    prefix='/questions/{question_id}',
-    tags=['answers'],
+    prefix="/questions/{question_id}",
+    tags=["answers"],
 )
 
 
-@answer_router.post(
-    '/answers/',
-    status_code=201,
-    response_model=GetAnswer
-)
+@answer_router.post("/answers/", status_code=201, response_model=GetAnswer)
 async def create_answer(
     question_id: int,
     answer: CreateAnswer,
     auth: User = Depends(get_current_user),
-    database_session: AsyncSession = Depends(get_session)
+    database_session: AsyncSession = Depends(get_session),
 ):
     async with AnswerManager(database_session) as manager:
-        question_object = await manager.get_question(question_id)        
+        question_object = await manager.get_question(question_id)
         await check_if_exists(question_object)
         await check_if_holder(auth.id, question_object.test.holder_id)
         answer_object = await manager.create_answer(answer, question_id)
         return answer_object
 
 
-@answer_router.get(
-    '/answers/',
-    status_code=200,
-    response_model=list[GetAnswer] 
-)
+@answer_router.get("/answers/", status_code=200, response_model=list[GetAnswer])
 async def get_answers(
     question_id: int,
     auth: User = Depends(get_current_user),
-    database_session: AsyncSession = Depends(get_session)
+    database_session: AsyncSession = Depends(get_session),
 ):
     async with AnswerManager(database_session) as manager:
         question_object = await manager.get_question(question_id)
@@ -54,16 +46,12 @@ async def get_answers(
         return answer_objects
 
 
-@answer_router.get(
-    '/answers/{answer_id}/',
-    status_code=200,
-    response_model=GetAnswer
-)
+@answer_router.get("/answers/{answer_id}/", status_code=200, response_model=GetAnswer)
 async def get_answer(
     question_id: int,
     answer_id: int,
     auth: User = Depends(get_current_user),
-    database_session: AsyncSession = Depends(get_session)
+    database_session: AsyncSession = Depends(get_session),
 ):
     async with AnswerManager(database_session) as manager:
         question_object = await manager.get_question(question_id)
@@ -75,33 +63,31 @@ async def get_answer(
         return answer_object
 
 
-@answer_router.put(
-    '/answers/{answer_id}/',
-    status_code=200,
-    response_model=GetAnswer
-)
+@answer_router.put("/answers/{answer_id}/", status_code=200, response_model=GetAnswer)
 async def update_answer(
     question_id: int,
     answer_id: int,
     answer: UpdateAnswer,
     auth: User = Depends(get_current_user),
-    database_session: AsyncSession = Depends(get_session)
+    database_session: AsyncSession = Depends(get_session),
 ):
     async with AnswerManager(database_session) as manager:
-        await get_answer(question_id, answer_id, auth, database_session) 
-        answer_object = await manager.update_answer(answer_id, answer.dict(exclude_unset=True))
+        await get_answer(question_id, answer_id, auth, database_session)
+        answer_object = await manager.update_answer(
+            answer_id, answer.dict(exclude_unset=True)
+        )
         return answer_object
 
 
 @answer_router.delete(
-    '/answers/{answer_id}/',
+    "/answers/{answer_id}/",
     status_code=200,
 )
 async def delete_answer(
     question_id: int,
     answer_id: int,
     auth: User = Depends(get_current_user),
-    database_session: AsyncSession = Depends(get_session)
+    database_session: AsyncSession = Depends(get_session),
 ):
     async with AnswerManager(database_session) as manager:
         await get_answer(question_id, answer_id, auth, database_session)
