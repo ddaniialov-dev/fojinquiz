@@ -36,6 +36,9 @@ class QuestionManager(AbstractBaseManager):
         await self.create(question_object)
         return question_object
 
+    async def change_ordering(self, ):
+        pass
+
     async def update_question(self, data: dict, question_id: int) -> Question:
         ordering = data.get("ordering")
         if ordering:
@@ -70,8 +73,16 @@ class QuestionManager(AbstractBaseManager):
         return response.first()
 
     async def delete_question(self, question_id: int) -> None:
+        
         query = delete(Question).returning(Question).where(Question.id == question_id)
+        result = await self._database_session.execute(query)
+        query = (
+            update(Question)
+            .where(Question.ordering > result.first().ordering).
+            values(ordering=Question.ordering - 1)
+            )
         await self._database_session.execute(query)
+        
 
     async def get_image(self, question_id: int) -> Image:
         query = select(Image).where(Image.question == question_id)
