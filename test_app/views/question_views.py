@@ -1,7 +1,9 @@
 import io
+import uuid
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, UploadFile, File, Response
+from fastapi.responses import JSONResponse
 from starlette.responses import StreamingResponse
 
 from test_app.crud import QuestionManager
@@ -127,13 +129,27 @@ async def create_image(
     database_session: AsyncSession = Depends(get_session),
 ) -> Response:
     async with QuestionManager(database_session) as manager:
+        question = await manager.get_question(question_id)
+        await check_if_holder(auth.id, question.test.holder_id)
         for file in files:
             byte_data = await file.read()
-
+            filename = str(uuid.uuid4()) + file.filename
             image_structure = ImageSchema(
-                path=file.filename, content_type=file.content_type, question=question_id
+                path=filename, content_type=file.content_type, question=question_id
             )
-            await save_file(Settings.MEDIA_ROOT + file.filename, byte_data)
-            await manager.create_image(image_structure)
+            await save_file(Settings.MEDIA_ROOT + filename , byte_data)
+            image_id = await manager.create_image(image_structure)
 
-    return Response(status_code=201)
+    return JSONResponse({"image_id": image_id}, status_code=201)
+
+@question_router.delete("/{question_id}/images/", status_code=204)
+async def delete_image(
+    question_id: int,
+    auth: User = Depends(get_current_user),
+    database_session: AsyncSession = Depends(get_session)
+):
+    async with QuestionManager(database_session) as manager:
+        question = await manager.get_question(question_id)
+        await check_if_holder(auth.id, question.test.holder_id)
+        await manager.delete_images(question_id)
+        return Response(status_code=204)

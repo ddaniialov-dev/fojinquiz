@@ -1,4 +1,5 @@
 from typing import List
+import os
 
 from sqlalchemy import select, update, and_, delete
 from sqlalchemy.orm import selectinload
@@ -7,8 +8,7 @@ from test_app.schemas import CreateQuestion, UpdateQuestion
 from test_app.models import Image, Question, Test
 from test_app.schemas import ImageSchema
 from quiz_project.behaviours.base_manager import AbstractBaseManager
-from user_app.models import User
-
+from quiz_project.conf import Settings
 
 class QuestionManager(AbstractBaseManager):
     async def get_test(self, test_id: int) -> Test:
@@ -93,3 +93,14 @@ class QuestionManager(AbstractBaseManager):
         image_object = Image(**image.dict())
         await self.create(image_object)
         return image_object.id
+
+    async def delete_images(self, question_id: int) -> None:
+        query = (
+            delete(Image)
+            .returning(Image)
+            .where(Image.question == question_id)
+        )
+        result = await self._database_session.execute(query)
+        images = result.all()
+        for image in images:
+            os.remove(Settings.MEDIA_ROOT + image.path)
