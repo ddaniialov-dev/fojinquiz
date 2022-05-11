@@ -25,10 +25,16 @@ class UserManager(AbstractBaseManager):
         response = await self._database_session.execute(query)
         return response.scalars().first()
 
-    async def get_user_by_username(self, username: str):
+    async def get_user_by_username(self, username: str) -> User | None:
         query = select(User).where(User.username == username)
         response = await self._database_session.execute(query)
         return response.scalars().first()
+    
+    async def get_user_by_email(self, email: str) -> User | None:
+        query = select(User).where(User.email == email)
+        response = await self._database_session.execute(query)
+        return response.scalars().first()
+            
 
     async def get_users(self, skip: int = 0, limit: int = 100):
         query = select(User).offset(skip).limit(limit)
