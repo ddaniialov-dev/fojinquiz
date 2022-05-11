@@ -13,13 +13,25 @@ class AnswerManager(AbstractBaseManager):
         question = result.scalar()
         return question
 
-    async def create_answer(self, answer: CreateAnswer, question_id: int) -> Answer:
+    async def create_answer(self, answer: CreateAnswer, question_id: int) -> Answer | None:
         answer_object = Answer(question_id=question_id, **answer.dict())
+        query = (
+            select(Answer).where(
+                and_(Answer.question_id == question_id, Answer.is_true == True)
+            )
+        )
+        result = await self._database_session.execute(query)
+        if result.scalar() and answer.is_true:
+            return None
         await self.create(answer_object)
         return answer_object
 
     async def get_answers(self, question_id) -> list[Answer]:
-        query = select(Answer).where(Answer.question_id == question_id)
+        query = (
+            select(Answer)
+            .where(Answer.question_id == question_id)
+            .order_by(Answer.id)
+        )
         result = await self._database_session.execute(query)
         return result.scalars().fetchall()
 
@@ -29,9 +41,15 @@ class AnswerManager(AbstractBaseManager):
         return result.scalars().one_or_none()
 
     async def update_answer(self, answer_id: int, data: dict) -> Answer:
+        if data.get("is_true"):
+            query = (
+                update(Answer).values({"is_true": False})
+            )
+            response = await self._database_session.execute(query)
         query = (
             update(Answer).returning(Answer).where(Answer.id == answer_id).values(data)
         )
+            
         response = await self._database_session.execute(query)
         return response.first()
 
