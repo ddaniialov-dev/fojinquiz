@@ -34,7 +34,6 @@ async def get_all_tests(
 ) -> list[GetTest]:
     async with TestManager(database_session) as manager:
         tests = await manager.get_tests()
-        await check_if_exists(tests)
         return tests
 
 
