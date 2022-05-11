@@ -116,6 +116,7 @@ async def get_image(
 ) -> StreamingResponse:
     async with QuestionManager(database_session) as manager:
         image = await manager.get_image(question_id)
+        await check_if_exists(image)
         byte_data = await get_file(Settings.MEDIA_ROOT + image.path)
 
     return StreamingResponse(io.BytesIO(byte_data), media_type=image.content_type)

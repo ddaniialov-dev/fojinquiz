@@ -87,7 +87,7 @@ class QuestionManager(AbstractBaseManager):
     async def get_image(self, question_id: int) -> Image:
         query = select(Image).where(Image.question == question_id)
         response = await self._database_session.execute(query)
-        return response.scalars().one_or_none()
+        return response.scalars().first()
 
     async def create_image(self, image: ImageSchema) -> int:
         image_object = Image(**image.dict())
