@@ -8,7 +8,7 @@ from quiz_project.utils.dependencies import get_current_user
 
 from test_app.schemas import GetSession
 from test_app.crud import SessionManager
-from test_app.checks.common import check_if_exists, check_if_exist
+from test_app.checks.common import check_if_exists
 from test_app.checks.sessions import check_if_test_has_session
 
 session_router = APIRouter(

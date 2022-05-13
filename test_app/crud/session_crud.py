@@ -1,6 +1,3 @@
-import re
-from typing import List
-
 from sqlalchemy import delete, select, and_
 from sqlalchemy.orm import selectinload
 
@@ -16,7 +13,7 @@ class SessionManager(AbstractBaseManager):
         result = await self._database_session.execute(query)
         return result.scalars().one_or_none()
 
-    async def get_sessions(self, user_id: int, test_id: int) -> List[Session]:
+    async def get_sessions(self, user_id: int, test_id: int) -> list[Session]:
         query = (
             select(Session)
             .options(selectinload(Session.questions))

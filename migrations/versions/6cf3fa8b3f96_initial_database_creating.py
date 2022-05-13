@@ -1,7 +1,7 @@
 """Initial database creating
 
 Revision ID: 6cf3fa8b3f96
-Revises: 
+Revises:
 Create Date: 2022-04-28 13:05:04.082075
 
 """

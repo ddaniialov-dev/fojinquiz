@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException, Response
-from test_app.checks.common import check_if_exists, check_if_exist, check_if_holder
+from test_app.checks.common import check_if_exists, check_if_holder
 from test_app.checks.answers import check_if_question_has_answer
 
 from test_app.crud.answer_crud import AnswerManager
@@ -30,9 +30,7 @@ async def create_answer(
         await check_if_holder(auth.id, question_object.test.holder_id)
         answer_object = await manager.create_answer(answer, question_id)
         if not answer_object:
-            raise HTTPException(
-                status_code=400, detail="Right answer already exists"
-            )
+            raise HTTPException(status_code=400, detail="Right answer already exists")
         return answer_object
 
 
@@ -95,5 +93,5 @@ async def delete_answer(
 ):
     async with AnswerManager(database_session) as manager:
         await get_answer(question_id, answer_id, auth, database_session)
-        answer_object = await manager.delete_answer(answer_id)
+        await manager.delete_answer(answer_id)
         return Response(status_code=204)

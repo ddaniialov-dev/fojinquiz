@@ -19,6 +19,7 @@ python-dotenv = "^0.19.2"
 asyncpg = "^0.25.0"
 black = "^22.3.0"
 pre-commit = "^2.19.0"
+flake8 = "^4.0.1"
 
 [tool.poetry.dev-dependencies]
 ipython = "^8.1.1"
