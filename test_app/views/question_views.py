@@ -31,6 +31,8 @@ async def get_questions(
     database_session: AsyncSession = Depends(get_session),
 ) -> list[GetQuestion]:
     async with QuestionManager(database_session) as manager:
+        test = await manager.get_test(test_id)
+        await check_if_exists(test)
         questions = await manager.get_questions(test_id)
         return questions
 
@@ -76,6 +78,7 @@ async def update_question(
 ) -> GetQuestion:
     async with QuestionManager(database_session) as manager:
         test = await manager.get_test(test_id)
+        await check_if_exists(test)
         question_object = await get_question(
             question_id, test_id, auth, database_session
         )

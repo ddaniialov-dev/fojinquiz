@@ -1,7 +1,6 @@
-from typing import List
 import os
 
-from sqlalchemy import select, update, delete
+from sqlalchemy import select, update, delete, and_
 from sqlalchemy.orm import selectinload
 
 from test_app.schemas import CreateQuestion
@@ -14,13 +13,14 @@ from quiz_project.conf import Settings
 class QuestionManager(AbstractBaseManager):
     async def get_test(self, test_id: int) -> Test:
         query = (
-            select(Test).options(selectinload(Test.questions)).where(Test.id == test_id)
+            select(Test).options(selectinload(
+                Test.questions)).where(Test.id == test_id)
         )
 
         result = await self._database_session.execute(query)
         return result.scalars().one_or_none()
 
-    async def get_questions(self, test_id) -> List[Question]:
+    async def get_questions(self, test_id) -> list[Question]:
         query = select(Question).where(Question.test_id == test_id)
         result = await self._database_session.execute(query)
         return result.scalars().fetchall()
@@ -37,35 +37,37 @@ class QuestionManager(AbstractBaseManager):
         await self.create(question_object)
         return question_object
 
-    async def change_ordering(
-        self,
-    ):
-        pass
+    async def change_ordering(self, data: dict, question_id: int) -> None:
+        query = select(Question).where(Question.id == question_id)
+        result = await self._database_session.execute(query)
+        question = result.scalar()
+        ordering = data.get("ordering")
+        if ordering > question.ordering:
+            await self._database_session.execute(
+                update(Question)
+                .where(
+                    and_(
+                        Question.ordering <= ordering,
+                        Question.ordering > question.ordering,
+                    )
+                )
+                .values(ordering=Question.ordering - 1)
+            )
+        elif ordering < question.ordering:
+            await self._database_session.execute(
+                update(Question)
+                .where(
+                    and_(
+                        Question.ordering >= ordering,
+                        Question.ordering < question.ordering,
+                    )
+                )
+                .values(ordering=Question.ordering + 1)
+            )
 
     async def update_question(self, data: dict, question_id: int) -> Question:
-        ordering = data.get("ordering")
-        if ordering:
-            query = select(Question)
-            result = await self._database_session.execute(query)
-            questions = result.scalars().fetchall()
-            question_object = list(filter(lambda x: x.id == question_id, questions))[0]
-            if ordering > question_object.ordering:
-                for question in questions:
-                    if question.ordering in range(
-                        question_object.ordering + 1, ordering + 1
-                    ):
-                        question.ordering -= 1
-                question_object.ordering = ordering
-            elif ordering < question_object.ordering:
-                for question in questions:
-                    if question.ordering in range(
-                        ordering, question_object.ordering + 1
-                    ):
-                        question.ordering += 1
-                question_object.ordering = ordering
-            self._database_session.commit()
-            data.pop("ordering")
-
+        if data.get("ordering"):
+            await self.change_ordering(data, question_id)
         query = (
             update(Question)
             .returning(Question)
@@ -77,7 +79,8 @@ class QuestionManager(AbstractBaseManager):
 
     async def delete_question(self, question_id: int) -> None:
 
-        query = delete(Question).returning(Question).where(Question.id == question_id)
+        query = delete(Question).returning(
+            Question).where(Question.id == question_id)
         result = await self._database_session.execute(query)
         query = (
             update(Question)
@@ -97,7 +100,8 @@ class QuestionManager(AbstractBaseManager):
         return image_object.id
 
     async def delete_images(self, question_id: int) -> None:
-        query = delete(Image).returning(Image).where(Image.question == question_id)
+        query = delete(Image).returning(Image).where(
+            Image.question == question_id)
         result = await self._database_session.execute(query)
         images = result.all()
         for image in images:
