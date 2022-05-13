@@ -1,14 +1,15 @@
 from typing import List
 import os
 
-from sqlalchemy import select, update, and_, delete
+from sqlalchemy import select, update, delete
 from sqlalchemy.orm import selectinload
 
-from test_app.schemas import CreateQuestion, UpdateQuestion
+from test_app.schemas import CreateQuestion
 from test_app.models import Image, Question, Test
 from test_app.schemas import ImageSchema
 from quiz_project.behaviours.base_manager import AbstractBaseManager
 from quiz_project.conf import Settings
+
 
 class QuestionManager(AbstractBaseManager):
     async def get_test(self, test_id: int) -> Test:
@@ -36,7 +37,9 @@ class QuestionManager(AbstractBaseManager):
         await self.create(question_object)
         return question_object
 
-    async def change_ordering(self, ):
+    async def change_ordering(
+        self,
+    ):
         pass
 
     async def update_question(self, data: dict, question_id: int) -> Question:
@@ -73,16 +76,15 @@ class QuestionManager(AbstractBaseManager):
         return response.first()
 
     async def delete_question(self, question_id: int) -> None:
-        
+
         query = delete(Question).returning(Question).where(Question.id == question_id)
         result = await self._database_session.execute(query)
         query = (
             update(Question)
-            .where(Question.ordering > result.first().ordering).
-            values(ordering=Question.ordering - 1)
-            )
+            .where(Question.ordering > result.first().ordering)
+            .values(ordering=Question.ordering - 1)
+        )
         await self._database_session.execute(query)
-        
 
     async def get_image(self, question_id: int) -> Image:
         query = select(Image).where(Image.question == question_id)
@@ -95,11 +97,7 @@ class QuestionManager(AbstractBaseManager):
         return image_object.id
 
     async def delete_images(self, question_id: int) -> None:
-        query = (
-            delete(Image)
-            .returning(Image)
-            .where(Image.question == question_id)
-        )
+        query = delete(Image).returning(Image).where(Image.question == question_id)
         result = await self._database_session.execute(query)
         images = result.all()
         for image in images:

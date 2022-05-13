@@ -38,7 +38,7 @@ services:
       replicas: 3
     networks:
       - backend
-    env_file: 
+    env_file:
      - .env
     depends_on:
      - db

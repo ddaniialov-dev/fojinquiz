@@ -8,7 +8,7 @@ from starlette.responses import StreamingResponse
 
 from test_app.crud import QuestionManager
 from test_app.schemas import UpdateQuestion, CreateQuestion, GetQuestion, ImageSchema
-from test_app.checks.common import check_if_exist, check_if_exists, check_if_holder
+from test_app.checks.common import check_if_exists, check_if_holder
 from test_app.checks.questions import check_if_test_has_question
 
 from quiz_project.conf import Settings
@@ -138,16 +138,17 @@ async def create_image(
             image_structure = ImageSchema(
                 path=filename, content_type=file.content_type, question=question_id
             )
-            await save_file(Settings.MEDIA_ROOT + filename , byte_data)
+            await save_file(Settings.MEDIA_ROOT + filename, byte_data)
             image_id = await manager.create_image(image_structure)
 
     return JSONResponse({"image_id": image_id}, status_code=201)
+
 
 @question_router.delete("/{question_id}/images/", status_code=204)
 async def delete_image(
     question_id: int,
     auth: User = Depends(get_current_user),
-    database_session: AsyncSession = Depends(get_session)
+    database_session: AsyncSession = Depends(get_session),
 ):
     async with QuestionManager(database_session) as manager:
         question = await manager.get_question(question_id)

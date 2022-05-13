@@ -1,4 +1,3 @@
-from enum import unique
 from sqlalchemy import Boolean, Column, String, Integer
 from sqlalchemy.orm import relationship, backref
 

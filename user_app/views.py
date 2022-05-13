@@ -41,8 +41,9 @@ async def register(
     user: UserCreate, database_session: AsyncSession = Depends(get_session)
 ):
     async with UserManager(database_session) as manager:
-        if await manager.get_user_by_username(username=user.username) or \
-            await manager.get_user_by_email(email=user.email):
+        if await manager.get_user_by_username(
+            username=user.username
+        ) or await manager.get_user_by_email(email=user.email):
             raise HTTPException(status_code=400, detail="User already registered")
 
         user = await manager.create_user(user=user)

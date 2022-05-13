@@ -1,9 +1,7 @@
-from typing import Callable
-
-from fastapi import Header, HTTPException, Depends, status
+from fastapi import HTTPException, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi_jwt_auth import AuthJWT
-from fastapi_jwt_auth.exceptions import MissingTokenError, CSRFError
+from fastapi_jwt_auth.exceptions import MissingTokenError
 
 from ..database import get_session
 from user_app.crud import UserManager, User

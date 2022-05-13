@@ -1,6 +1,4 @@
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
-from sqlalchemy.orm import Session
 from quiz_project.behaviours.base_manager import AbstractBaseManager
 from test_app.models import Session, UserAnswer
 
