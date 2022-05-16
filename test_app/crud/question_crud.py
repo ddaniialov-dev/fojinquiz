@@ -49,6 +49,7 @@ class QuestionManager(AbstractBaseManager):
                     and_(
                         Question.ordering <= ordering,
                         Question.ordering > question.ordering,
+                        Question.id == question_id
                     )
                 )
                 .values(ordering=Question.ordering - 1)
@@ -60,6 +61,7 @@ class QuestionManager(AbstractBaseManager):
                     and_(
                         Question.ordering >= ordering,
                         Question.ordering < question.ordering,
+                        Question.id == question_id
                     )
                 )
                 .values(ordering=Question.ordering + 1)
@@ -84,7 +86,7 @@ class QuestionManager(AbstractBaseManager):
         result = await self._database_session.execute(query)
         query = (
             update(Question)
-            .where(Question.ordering > result.first().ordering)
+            .where(Question.ordering > result.first().ordering, Question.id == question_id)
             .values(ordering=Question.ordering - 1)
         )
         await self._database_session.execute(query)
