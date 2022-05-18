@@ -47,6 +47,6 @@ class UserCreate(BaseModel):
 
     @validator("email")
     def check_email(cls, v: str):
-        if not v.endswith(".exceedteam@gmail.com"):
+        if not v.endswith("@fojin.tech"):
             raise ValueError("Email does not match")
         return v
