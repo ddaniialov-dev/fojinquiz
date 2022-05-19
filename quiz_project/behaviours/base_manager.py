@@ -18,9 +18,7 @@ class AbstractBaseManager:
             await self._database_session.rollback()
 
     async def create(self, obj):
-        await self._before_create()
 
         self._database_session.add(obj)
         await self._database_session.commit()
         await self._database_session.refresh(obj)
-        await self._after_create()
