@@ -42,11 +42,7 @@ class QuestionManager(AbstractBaseManager):
         result = await self._database_session.execute(query)
         question = result.scalar()
         ordering = data.get("ordering")
-        print(data)
-        print(ordering)
-        print(question.__dict__)
         if ordering > question.ordering:
-            print('>')
             await self._database_session.execute(
                 update(Question).where(
                     and_(
@@ -57,7 +53,6 @@ class QuestionManager(AbstractBaseManager):
                 ).values(ordering=Question.ordering - 1)
             )
         elif ordering < question.ordering:
-            print('<')
             await self._database_session.execute(
                 update(Question).where(
                     and_(
@@ -66,10 +61,7 @@ class QuestionManager(AbstractBaseManager):
                         Question.test_id == question.test_id
                     )
                 ).values(ordering=Question.ordering + 1)
-                
             )
-        else:
-            print('wtf')
 
     async def update_question(self, data: dict, question_id: int) -> Question:
         if data.get("ordering"):
