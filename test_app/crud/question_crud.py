@@ -84,13 +84,18 @@ class QuestionManager(AbstractBaseManager):
         return response.first()
 
     async def delete_question(self, question_id: int) -> None:
+        
+        query = select(Question).where(Question.id == question_id)
+        result = await self._database_session.execute(query)
+        question = result.scalar()
 
         query = delete(Question).returning(
             Question).where(Question.id == question_id)
         result = await self._database_session.execute(query)
         query = (
-            update(Question)
-            .where(Question.ordering > result.first().ordering, Question.id == question_id)
+            update(Question).where(
+                Question.ordering > result.first().ordering,
+                Question.test_id == question.test_id)
             .values(ordering=Question.ordering - 1)
         )
         await self._database_session.execute(query)
