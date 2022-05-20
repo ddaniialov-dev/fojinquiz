@@ -44,27 +44,23 @@ class QuestionManager(AbstractBaseManager):
         ordering = data.get("ordering")
         if ordering > question.ordering:
             await self._database_session.execute(
-                update(Question)
-                .where(
+                update(Question).where(
                     and_(
                         Question.ordering <= ordering,
                         Question.ordering > question.ordering,
-                        Question.id == question_id
+                        Question.test_id == question.test_id
                     )
-                )
-                .values(ordering=Question.ordering - 1)
+                ).values(ordering=Question.ordering - 1)
             )
         elif ordering < question.ordering:
             await self._database_session.execute(
-                update(Question)
-                .where(
+                update(Question).where(
                     and_(
                         Question.ordering >= ordering,
                         Question.ordering < question.ordering,
-                        Question.id == question_id
+                        Question.test_id == question.test_id
                     )
-                )
-                .values(ordering=Question.ordering + 1)
+                ).values(ordering=Question.ordering + 1)
             )
 
     async def update_question(self, data: dict, question_id: int) -> Question:
@@ -80,13 +76,18 @@ class QuestionManager(AbstractBaseManager):
         return response.first()
 
     async def delete_question(self, question_id: int) -> None:
+        
+        query = select(Question).where(Question.id == question_id)
+        result = await self._database_session.execute(query)
+        question = result.scalar()
 
         query = delete(Question).returning(
             Question).where(Question.id == question_id)
         result = await self._database_session.execute(query)
         query = (
-            update(Question)
-            .where(Question.ordering > result.first().ordering, Question.id == question_id)
+            update(Question).where(
+                Question.ordering > result.first().ordering,
+                Question.test_id == question.test_id)
             .values(ordering=Question.ordering - 1)
         )
         await self._database_session.execute(query)
