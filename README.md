@@ -11,6 +11,13 @@ POSTGRES_HOST=example
 MEDIA_ROOT=/media/
 SECRET_KEY=secret
 
+### PG_Admin settings
+
+#### Not related to Postgres settings
+
+PGADMIN_DEFAULT_EMAIL=admin@admin.com
+PGADMIN_DEFAULT_PASSWORD=password
+
 ### To accept migrations
 
 - docker exec -ti fojinquiz-web-1 alembic upgrade head

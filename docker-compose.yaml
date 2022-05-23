@@ -2,6 +2,7 @@ version: "3"
 
 volumes:
   _postgres_data:
+  pgadmin-data:
 
 networks:
   backend:
@@ -19,6 +20,20 @@ services:
       - .env
     ports:
       - "5433:5432"
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    restart: on-failure:3
+    env_file:
+      - .env
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - backend
   migrations:
     container_name: migrations
     build: .
