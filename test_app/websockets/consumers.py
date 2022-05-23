@@ -1,13 +1,12 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-
-from connection_manager import ConnectionManager
+from test_app.websockets.connection_manager import ConnectionManager
 
 manager = ConnectionManager()
 
 websocket_router = APIRouter()
 
 
-@websocket_router.websocket("/ws/{client_id}")
+@websocket_router.websocket("/ws/{client_id}/")
 async def websocket_endpoint(websocket: WebSocket, client_id: int):
     await manager.connect(websocket)
     try:
