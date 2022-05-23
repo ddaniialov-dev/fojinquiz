@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from user_app.views import user_router
@@ -24,6 +25,21 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.middleware("http")
+async def csrf_validatior(request: Request, call_next):
+
+    csrf = 'asdqwe2'
+
+    if request.cookies['CSRF'] and request.method != 'GET':
+        if request.cookies['CSRF'] != csrf:
+            return JSONResponse(status_code=401, content="CSRF is not valid")
+        response = await call_next(request)
+    else:
+        response = await call_next(request)
+        response.set_cookie(key='CSRF', value=csrf)
+    
+    return response
 
 app.include_router(user_router)
 app.include_router(question_router)
