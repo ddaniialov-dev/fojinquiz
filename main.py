@@ -54,7 +54,7 @@ async def csrf_validatior(request: Request, call_next):
                 response = await call_next(request)
                 return response
             else:
-                return JSONResponse(status_code=401, content="CSRF is not valid")
-        return JSONResponse(status_code=401, content="CSRF is missing.")
+                return JSONResponse(status_code=401, content={"detail": "CSRF is not valid"})
+        return JSONResponse(status_code=401, content={"detail": "CSRF is missing."})
 
     return response
