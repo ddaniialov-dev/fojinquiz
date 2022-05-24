@@ -44,19 +44,23 @@ async def csrf_validatior(request: Request, call_next):
         response = await call_next(request)
         if not request.headers.get("X-CSRF"):
             csrf = secrets.token_hex(32)
-            response.set_cookie(key='CSRF', value=csrf)
-            response.headers['X-CSRF'] = csrf
+            response.set_cookie(key="CSRF", value=csrf)
+            response.headers["X-CSRF"] = csrf
     else:
         header_csrf = request.headers.get("X-CSRF")
         if header_csrf:
             cookies_csrf = request.cookies.get("CSRF")
             if not cookies_csrf:
-                return JSONResponse(status_code=401, content={"detail": "Cookies hasn't CSRF."})
+                return JSONResponse(
+                    status_code=401, content={"detail": "Cookies hasn't CSRF."}
+                )
             if cookies_csrf == header_csrf:
                 response = await call_next(request)
                 return response
             else:
-                return JSONResponse(status_code=401, content={"detail": "CSRF is not valid."})
+                return JSONResponse(
+                    status_code=401, content={"detail": "CSRF is not valid."}
+                )
         return JSONResponse(status_code=401, content={"detail": "CSRF is missing."})
 
     return response
