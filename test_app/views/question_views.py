@@ -2,7 +2,7 @@ import io
 import uuid
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, UploadFile, File, Response
+from fastapi import APIRouter, Depends, UploadFile, File, Response, HTTPException, status
 from fastapi.responses import JSONResponse
 from starlette.responses import StreamingResponse
 
@@ -129,13 +129,13 @@ async def get_image(
 async def create_image(
     question_id: int,
     auth: User = Depends(get_current_user),
-    files: list[UploadFile] = File(...),
+    file: UploadFile = File(...),
     database_session: AsyncSession = Depends(get_session),
 ) -> Response:
     async with QuestionManager(database_session) as manager:
         question = await manager.get_question(question_id)
         await check_if_holder(auth.id, question.test.holder_id)
-        for file in files:
+        if file.content_type in Settings.CONTENT_TYPES:
             byte_data = await file.read()
             filename = str(uuid.uuid4()) + file.filename
             image_structure = ImageSchema(
@@ -143,7 +143,10 @@ async def create_image(
             )
             await save_file(Settings.MEDIA_ROOT + filename, byte_data)
             image_id = await manager.create_image(image_structure)
-
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail='Incorrect images type'
+            )
     return JSONResponse({"image_id": image_id}, status_code=201)
 
 

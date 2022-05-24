@@ -18,6 +18,7 @@ class Settings:
         f"postgresql+asyncpg://{DB['USER']}:{DB['PASSWORD']}@{DB['HOST']}/{DB['NAME']}"
     )
     MEDIA_ROOT = os.getenv("MEDIA_ROOT")
+    CONTENT_TYPES = ['image/jpeg', 'image/png', 'image/gif']
 
 
 class JWTSettings(BaseModel):
