@@ -1,7 +1,10 @@
+import secrets
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+from quiz_project.conf import SAFE_METHODS
 from user_app.views import user_router
 from test_app.views import (
     test_router,
@@ -26,24 +29,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.middleware("http")
-async def csrf_validatior(request: Request, call_next):
-
-    csrf = 'asdqwe2'
-
-    if request.cookies['CSRF'] and request.method != 'GET':
-        if request.cookies['CSRF'] != csrf:
-            return JSONResponse(status_code=401, content="CSRF is not valid")
-        response = await call_next(request)
-    else:
-        response = await call_next(request)
-        response.set_cookie(key='CSRF', value=csrf)
-    
-    return response
-
 app.include_router(user_router)
 app.include_router(question_router)
 app.include_router(test_router)
 app.include_router(session_router)
 app.include_router(answer_router)
 app.include_router(user_answer_router)
+
+
+@app.middleware("http")
+async def csrf_validatior(request: Request, call_next):
+    if request.method in SAFE_METHODS:
+        response = await call_next(request)
+        if not request.headers.get("X-CSRF"):
+            csrf = secrets.token_hex(32)
+            response.set_cookie(key='CSRF', value=csrf)
+            response.headers['X-CSRF'] = csrf
+    else:
+        header_csrf = request.headers.get("X-CSRF")
+        cookies_csrf = request.cookies.get("CSRF")
+        if header_csrf and cookies_csrf:
+            if cookies_csrf == header_csrf:
+                response = await call_next(request)
+                return response
+            else:
+                return JSONResponse(status_code=401, content="CSRF is not valid")
+        return JSONResponse(status_code=401, content="CSRF is missing.")
+
+    return response
