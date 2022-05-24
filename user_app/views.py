@@ -29,7 +29,8 @@ async def login(
 ):
     async with UserManager(database_session) as manager:
         if not await manager.check_user_credentials(user.username, user.password):
-            raise HTTPException(status_code=401, detail="username/password error")
+            raise HTTPException(
+                status_code=401, detail="username/password error")
 
         return await obtain_auth_tokens(user, auth)
 
@@ -44,7 +45,8 @@ async def register(
         if await manager.get_user_by_username(
             username=user.username
         ) or await manager.get_user_by_email(email=user.email):
-            raise HTTPException(status_code=400, detail="User already registered")
+            raise HTTPException(
+                status_code=400, detail="User already registered")
 
         user = await manager.create_user(user=user)
         return JSONResponse(content={"detail": "Registered"}, status_code=201)
@@ -68,8 +70,10 @@ async def get_me(user: User = Depends(get_current_user)):
 
 
 async def obtain_auth_tokens(user: UserCreate, auth: AuthJWT) -> dict:
-    refresh_token = auth.create_refresh_token(subject=user.username, expires_time=False)
-    access_token = auth.create_access_token(subject=user.username, expires_time=False)
+    refresh_token = auth.create_refresh_token(
+        subject=user.username, expires_time=False)
+    access_token = auth.create_access_token(
+        subject=user.username, expires_time=False)
     auth.set_access_cookies(access_token)
     auth.set_refresh_cookies(refresh_token)
     return {"access_token": access_token, "refresh_token": refresh_token}

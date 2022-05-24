@@ -10,6 +10,7 @@ from user_app.crud import UserManager, User
 async def get_current_user(
     auth: AuthJWT = Depends(), db_session: AsyncSession = Depends(get_session)
 ) -> User:
+
     try:
         auth.jwt_required()
     except MissingTokenError:

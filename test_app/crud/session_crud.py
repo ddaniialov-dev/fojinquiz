@@ -33,7 +33,8 @@ class SessionManager(AbstractBaseManager):
 
     async def create_session(self, test_id: int, user: User):
         query = (
-            select(Test).where(Test.id == test_id).options(selectinload(Test.questions))
+            select(Test).where(Test.id == test_id).options(
+                selectinload(Test.questions))
         )
         result = await self._database_session.execute(query)
         test = result.scalar()
@@ -46,7 +47,8 @@ class SessionManager(AbstractBaseManager):
         return session_object
 
     async def delete_session(self, session_id: int):
-        query = delete(Session).returning(Session).where(and_(Session.id == session_id))
+        query = delete(Session).returning(Session).where(
+            and_(Session.id == session_id))
 
         result = await self._database_session.execute(query)
         return result.first()

@@ -64,7 +64,8 @@ class Question(AbstractBaseModel):
 class Answer(AbstractBaseModel):
     __tablename__ = "answers"
 
-    question_id = Column(Integer, ForeignKey("questions.id", ondelete="CASCADE"))
+    question_id = Column(Integer, ForeignKey(
+        "questions.id", ondelete="CASCADE"))
     text = Column(Text)
     is_true = Column(Boolean, default=True)
     user_answers = relationship(

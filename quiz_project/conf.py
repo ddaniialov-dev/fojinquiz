@@ -30,3 +30,6 @@ class JWTSettings(BaseModel):
 @AuthJWT.load_config
 def get_config():
     return JWTSettings()
+
+
+SAFE_METHODS = ["GET", "HEAD", "OPTIONS", "TRACE"]

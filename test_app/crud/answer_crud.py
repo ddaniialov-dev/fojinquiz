@@ -27,7 +27,8 @@ class AnswerManager(AbstractBaseManager):
 
     async def get_answers(self, question_id) -> list[Answer]:
         query = (
-            select(Answer).where(Answer.question_id == question_id).order_by(Answer.id)
+            select(Answer).where(Answer.question_id ==
+                                 question_id).order_by(Answer.id)
         )
         result = await self._database_session.execute(query)
         return result.scalars().fetchall()
@@ -42,7 +43,8 @@ class AnswerManager(AbstractBaseManager):
             query = update(Answer).values({"is_true": False})
             response = await self._database_session.execute(query)
         query = (
-            update(Answer).returning(Answer).where(Answer.id == answer_id).values(data)
+            update(Answer).returning(Answer).where(
+                Answer.id == answer_id).values(data)
         )
 
         response = await self._database_session.execute(query)
