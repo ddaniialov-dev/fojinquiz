@@ -19,10 +19,10 @@ PGADMIN_DEFAULT_EMAIL=admin@admin.com
 PGADMIN_DEFAULT_PASSWORD=password
 
 
-###If you want up project in containers, you should set:
+### If you want up project in containers, you should set:
 POSTGRES_HOST=db
 
-###If locally:
+### If locally:
 POSTGRES_HOST=localhost:5432
 
 ### To accept migrations
