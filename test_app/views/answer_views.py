@@ -30,7 +30,8 @@ async def create_answer(
         await check_if_holder(auth.id, question_object.test.holder_id)
         answer_object = await manager.create_answer(answer, question_id)
         if not answer_object:
-            raise HTTPException(status_code=400, detail="Right answer already exists")
+            raise HTTPException(
+                status_code=400, detail="Right answer already exists")
         return answer_object
 
 

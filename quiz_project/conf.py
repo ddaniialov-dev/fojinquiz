@@ -31,4 +31,4 @@ def get_config():
     return JWTSettings()
 
 
-SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS', 'TRACE']
+SAFE_METHODS = ["GET", "HEAD", "OPTIONS", "TRACE"]

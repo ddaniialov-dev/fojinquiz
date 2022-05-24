@@ -32,7 +32,8 @@ async def create_user_answer(
         session_object = await manager.get_session(auth.id, session_id)
         await check_if_exists(session_object)
         if not session_object.questions:
-            raise HTTPException(status_code=404, detail="No questions for this session")
+            raise HTTPException(
+                status_code=404, detail="No questions for this session")
         async with UserAnswerManager(database_session) as manager:
             user_answer_object = await manager.create_user_answer(
                 session_object, user_answer.dict()

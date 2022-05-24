@@ -30,7 +30,8 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("email"),
     )
-    op.create_index(op.f("ix_users_username"), "users", ["username"], unique=True)
+    op.create_index(op.f("ix_users_username"),
+                    "users", ["username"], unique=True)
     op.create_table(
         "tests",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),

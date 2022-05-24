@@ -27,7 +27,8 @@ class TestManager(AbstractBaseManager):
 
     async def get_test(self, test_id: int) -> Test:
         query = (
-            select(Test).options(selectinload(Test.questions)).where(Test.id == test_id)
+            select(Test).options(selectinload(
+                Test.questions)).where(Test.id == test_id)
         )
 
         result = await self._database_session.execute(query)
@@ -50,7 +51,8 @@ class TestManager(AbstractBaseManager):
 
     async def update_test(self, test_id: int, data: dict) -> Test:
         query = (
-            update(Test).returning(Test).where(and_(Test.id == test_id)).values(**data)
+            update(Test).returning(Test).where(
+                and_(Test.id == test_id)).values(**data)
         )
 
         result = await self._database_session.execute(query)

@@ -15,7 +15,8 @@ class UserManager(AbstractBaseManager):
         salt = uuid5(NAMESPACE_X500, username).hex.encode()
         hashed_password = hashlib.sha512(password.encode() + salt).hexdigest()
         query = select(User).where(
-            and_(User.username == username, User.hashed_password == hashed_password)
+            and_(User.username == username,
+                 User.hashed_password == hashed_password)
         )
         response = await self._database_session.execute(query)
         return response.scalars().first()
