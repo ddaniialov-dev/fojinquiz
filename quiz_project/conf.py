@@ -33,3 +33,4 @@ def get_config():
 
 
 SAFE_METHODS = ["GET", "HEAD", "OPTIONS", "TRACE"]
+LIFETIME_TOKEN_HOUR = 1

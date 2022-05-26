@@ -17,4 +17,4 @@ async def get_session() -> AsyncSession:
         await connection.run_sync(Base.metadata.create_all)
 
     async with async_session() as session:
-        yield session
+        return session

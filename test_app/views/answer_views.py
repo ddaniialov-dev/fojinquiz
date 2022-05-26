@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from test_app.checks.common import check_if_exists, check_if_holder
 from test_app.checks.answers import check_if_question_has_answer
 
@@ -21,13 +21,13 @@ answer_router = APIRouter(
 async def create_answer(
     question_id: int,
     answer: CreateAnswer,
-    auth: User = Depends(get_current_user),
+    request: Request,
     database_session: AsyncSession = Depends(get_session),
 ):
     async with AnswerManager(database_session) as manager:
         question_object = await manager.get_question(question_id)
         await check_if_exists(question_object)
-        await check_if_holder(auth.id, question_object.test.holder_id)
+        await check_if_holder(request.user.id, question_object.test.holder_id)
         answer_object = await manager.create_answer(answer, question_id)
         if not answer_object:
             raise HTTPException(
@@ -38,13 +38,13 @@ async def create_answer(
 @answer_router.get("/answers/", status_code=200, response_model=list[GetAnswer])
 async def get_answers(
     question_id: int,
-    auth: User = Depends(get_current_user),
+    request: Request,
     database_session: AsyncSession = Depends(get_session),
 ):
     async with AnswerManager(database_session) as manager:
         question_object = await manager.get_question(question_id)
         await check_if_exists(question_object)
-        await check_if_holder(auth.id, question_object.test.holder_id)
+        await check_if_holder(request.user.id, question_object.test.holder_id)
         answer_objects = await manager.get_answers(question_id)
         return answer_objects
 
@@ -53,13 +53,13 @@ async def get_answers(
 async def get_answer(
     question_id: int,
     answer_id: int,
-    auth: User = Depends(get_current_user),
+    request: Request,
     database_session: AsyncSession = Depends(get_session),
 ):
     async with AnswerManager(database_session) as manager:
         question_object = await manager.get_question(question_id)
         await check_if_exists(question_object)
-        await check_if_holder(auth.id, question_object.test.holder_id)
+        await check_if_holder(request.user.id, question_object.test.holder_id)
         answer_object = await manager.get_answer(answer_id)
         await check_if_exists(answer_object)
         await check_if_question_has_answer(question_id, answer_object)
@@ -71,11 +71,11 @@ async def update_answer(
     question_id: int,
     answer_id: int,
     answer: UpdateAnswer,
-    auth: User = Depends(get_current_user),
+    request: Request,
     database_session: AsyncSession = Depends(get_session),
 ):
     async with AnswerManager(database_session) as manager:
-        await get_answer(question_id, answer_id, auth, database_session)
+        await get_answer(question_id, answer_id, request, database_session)
         answer_object = await manager.update_answer(
             answer_id, answer.dict(exclude_unset=True)
         )
@@ -89,10 +89,10 @@ async def update_answer(
 async def delete_answer(
     question_id: int,
     answer_id: int,
-    auth: User = Depends(get_current_user),
+    request: Request,
     database_session: AsyncSession = Depends(get_session),
 ):
     async with AnswerManager(database_session) as manager:
-        await get_answer(question_id, answer_id, auth, database_session)
+        await get_answer(question_id, answer_id, request, database_session)
         await manager.delete_answer(answer_id)
         return Response(status_code=204)
