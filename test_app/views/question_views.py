@@ -14,7 +14,6 @@ from test_app.checks.questions import check_if_test_has_question
 from quiz_project.conf import Settings
 from quiz_project.database import get_session
 from quiz_project.utils.functions import save_file, get_file
-from user_app.models import User
 
 
 question_router = APIRouter(

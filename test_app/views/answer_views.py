@@ -1,13 +1,11 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
-from test_app.checks.common import check_if_exists, check_if_holder
-from test_app.checks.answers import check_if_question_has_answer
-
-from test_app.crud.answer_crud import AnswerManager
-from test_app.schemas.answer_scheme import GetAnswer, CreateAnswer, UpdateAnswer
 
 from quiz_project.database import get_session
-from user_app.models import User
+from test_app.checks.common import check_if_exists, check_if_holder
+from test_app.checks.answers import check_if_question_has_answer
+from test_app.crud.answer_crud import AnswerManager
+from test_app.schemas.answer_scheme import GetAnswer, CreateAnswer, UpdateAnswer
 
 
 answer_router = APIRouter(

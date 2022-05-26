@@ -1,14 +1,11 @@
 from fastapi import APIRouter, status, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi_jwt_auth import AuthJWT
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from quiz_project.database import get_session
-
 from .crud import UserManager
 from .schemas import UserGet, UserCreate, UserLogin
-from .models import User
 
 user_router = APIRouter(
     tags=["auth"],

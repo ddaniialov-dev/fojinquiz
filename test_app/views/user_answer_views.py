@@ -1,14 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException, Request
+
 from test_app.crud.session_crud import SessionManager
 from test_app.crud.user_answer_crud import UserAnswerManager
 from test_app.schemas.user_answer_schemas import CreateUserAnswer, GetUserAnswer
-
-from user_app.models import User
-
 from quiz_project.database import get_session
-
 from test_app.checks.common import check_if_exists
+
 
 user_answer_router = APIRouter(
     prefix="/sessions/{session_id}/user_answers",

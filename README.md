@@ -10,7 +10,7 @@ POSTGRES_USER=example
 POSTGRES_PASSWORD=example
 POSTGRES_HOST=example
 
-### Web App configs, 
+### Web App configs,
 MEDIA_ROOT=media/
 SECRET_KEY=secret
 

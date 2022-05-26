@@ -1,12 +1,10 @@
-from fastapi import Response, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, HTTPException
-from user_app.crud import UserManager
-
-from user_app.models import User
+from fastapi import (
+    Response, Request, APIRouter,
+    Depends, HTTPException
+)
 
 from quiz_project.database import get_session
-
 from test_app.crud import TestManager
 from test_app.schemas import GetTest, CreateTest, UpdateTest
 from test_app.checks.common import check_if_holder, check_if_exists

@@ -1,19 +1,19 @@
 from time import time
-from user_app.schemas import UserGet
 import secrets
-import time
 import os
 
-from fastapi import FastAPI, Request, Depends, HTTPException
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.authentication import AuthenticationMiddleware
-from starlette.authentication import AuthenticationBackend, AuthCredentials, UnauthenticatedUser
-import jwt
+from starlette.authentication import AuthenticationBackend, AuthCredentials
 from starlette.requests import HTTPConnection
+import jwt
+
 from user_app.crud import UserManager
 from user_app.views import user_router
 from quiz_project.conf import SAFE_METHODS, LIFETIME_TOKEN_HOUR
+from quiz_project.database import get_session
 from test_app.views import (
     test_router,
     question_router,
@@ -21,8 +21,6 @@ from test_app.views import (
     answer_router,
     user_answer_router,
 )
-
-from quiz_project.database import get_session
 
 
 app = FastAPI()

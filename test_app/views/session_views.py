@@ -1,10 +1,7 @@
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from user_app.models import User
-
 from quiz_project.database import get_session
-
 from test_app.schemas import GetSession
 from test_app.crud import SessionManager
 from test_app.checks.common import check_if_exists
