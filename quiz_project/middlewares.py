@@ -5,24 +5,27 @@ import time
 from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
 from starlette.middleware.authentication import AuthenticationMiddleware
-from starlette.authentication import AuthenticationBackend, AuthCredentials
+from starlette.authentication import AuthenticationBackend, AuthCredentials, UnauthenticatedUser
 from starlette.requests import HTTPConnection
 import jwt
 
 from user_app.crud import UserManager
 from user_app.views import user_router
-from quiz_project.conf import SAFE_METHODS, LIFETIME_TOKEN_HOUR
 from quiz_project.database import get_session
+from quiz_project.conf import (
+    SAFE_METHODS, LIFETIME_TOKEN_HOUR,
+    JWT_PATHS_IGNORED, CSRF_PATHS_IGNORED
+)
 
 
 async def csrf_validatior_deep(request: Request, call_next):
-    if os.environ.get('DEBUG_CSRF') is True:
-        return await call_next(request)
 
     path = str(request.scope.get('path')).replace('/', '')
-    paths = ['get-csrf', ]
 
-    if request.method in SAFE_METHODS and path in paths:
+    if request.method in SAFE_METHODS \
+            and path in CSRF_PATHS_IGNORED \
+            or os.environ.get('DEBUG_CSRF'):
+
         response = await call_next(request)
         if not request.headers.get("X-CSRF"):
             csrf = secrets.token_hex(32)
@@ -58,7 +61,6 @@ class JWTAuthBackend(AuthenticationBackend):
         token = conn.cookies.get('access_token_cookie')
 
         path = str(conn.scope.get('path')).replace('/', '')
-        paths = ['register', 'login', 'get-csrf']
 
         if token:
             token_decode = jwt.decode(token, os.getenv("SECRET_KEY"))
@@ -84,8 +86,8 @@ class JWTAuthBackend(AuthenticationBackend):
                     status_code=401,
                     detail={'error': "JWT live but user not found."}
                 )
-
-        elif path not in paths:
+        else:
+            #  path not in JWT_PATHS_IGNORED:
             raise HTTPException(
                 status_code=401,
                 detail={
@@ -98,6 +100,12 @@ class JWTAuthBackend(AuthenticationBackend):
 class JWTAuthMiddleware(AuthenticationMiddleware):
     async def __call__(self, scope, receive, send) -> None:
         try:
+            path = str(scope.get('path')).replace('/', '')
+            if path in JWT_PATHS_IGNORED:
+                auth_result = AuthCredentials(), UnauthenticatedUser()
+                scope["auth"], scope["user"] = auth_result
+                await self.app(scope, receive, send)
+                return
             await super().__call__(scope, receive, send)
             conn = HTTPConnection(scope)
         except HTTPException as exc:
