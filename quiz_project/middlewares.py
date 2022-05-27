@@ -16,6 +16,8 @@ from quiz_project.database import get_session
 
 
 async def csrf_validatior_deep(request: Request, call_next):
+    if os.environ.get('DEBUG_CSRF') is True:
+        return await call_next(request)
 
     path = str(request.scope.get('path')).replace('/', '')
     paths = ['get-csrf', ]
@@ -52,6 +54,7 @@ async def csrf_validatior_deep(request: Request, call_next):
 
 class JWTAuthBackend(AuthenticationBackend):
     async def authenticate(self, conn):
+
         token = conn.cookies.get('access_token_cookie')
 
         path = str(conn.scope.get('path')).replace('/', '')
