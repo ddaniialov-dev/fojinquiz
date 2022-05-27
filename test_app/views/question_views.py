@@ -53,7 +53,7 @@ async def create_question(
 async def get_question(
     question_id: int,
     test_id: int,
-    user,
+    request: Request,
     database_session: AsyncSession = Depends(get_session),
 ) -> GetQuestion:
     async with QuestionManager(database_session) as manager:
