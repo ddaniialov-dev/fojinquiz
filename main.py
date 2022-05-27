@@ -14,6 +14,14 @@ from test_app.views import (
 
 app = FastAPI()
 
+
+app.include_router(user_router)
+app.include_router(question_router)
+app.include_router(test_router)
+app.include_router(session_router)
+app.include_router(answer_router)
+app.include_router(user_answer_router)
+
 origins = [
     "http://localhost",
     "http://localhost:3000",
@@ -35,10 +43,3 @@ app.add_middleware(
     JWTAuthMiddleware,
     backend=JWTAuthBackend()
 )
-
-app.include_router(user_router)
-app.include_router(question_router)
-app.include_router(test_router)
-app.include_router(session_router)
-app.include_router(answer_router)
-app.include_router(user_answer_router)

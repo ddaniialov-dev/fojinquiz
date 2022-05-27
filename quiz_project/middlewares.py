@@ -22,9 +22,11 @@ async def csrf_validatior_deep(request: Request, call_next):
 
     path = str(request.scope.get('path')).replace('/', '')
 
-    if request.method in SAFE_METHODS \
-            and path in CSRF_PATHS_IGNORED \
-            or os.environ.get('DEBUG_CSRF'):
+    deb = os.environ.get('DEBUG_CSRF')
+
+    debug_mode = True if os.environ.get('DEBUG_CSRF') == 'True' else False
+
+    if request.method in SAFE_METHODS and path in CSRF_PATHS_IGNORED or debug_mode:
 
         response = await call_next(request)
         if not request.headers.get("X-CSRF"):
