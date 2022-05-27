@@ -65,6 +65,11 @@ async def get_me(request: Request):
     return request.user
 
 
+@user_router.get("/get-csrf/", status_code=status.HTTP_200_OK)
+async def get_csrf(request: Request):
+    return {'status': 205}
+
+
 async def obtain_auth_tokens(user: UserCreate, auth: AuthJWT) -> dict:
     refresh_token = auth.create_refresh_token(
         subject=user.username, expires_time=False)

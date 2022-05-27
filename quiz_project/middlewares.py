@@ -17,7 +17,10 @@ from quiz_project.database import get_session
 
 async def csrf_validatior_deep(request: Request, call_next):
 
-    if request.method in SAFE_METHODS:
+    path = str(request.scope.get('path')).replace('/', '')
+    paths = ['get-csrf', ]
+
+    if request.method in SAFE_METHODS and path in paths:
         response = await call_next(request)
         if not request.headers.get("X-CSRF"):
             csrf = secrets.token_hex(32)
@@ -52,7 +55,7 @@ class JWTAuthBackend(AuthenticationBackend):
         token = conn.cookies.get('access_token_cookie')
 
         path = str(conn.scope.get('path')).replace('/', '')
-        paths = ['register', 'login']
+        paths = ['register', 'login', 'get-csrf']
 
         if token:
             token_decode = jwt.decode(token, os.getenv("SECRET_KEY"))
