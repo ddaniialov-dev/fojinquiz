@@ -27,11 +27,6 @@ origins = [
     "http://localhost:3000",
 ]
 
-
-@app.middleware("http")
-async def csrf_validatior(request: Request, call_next):
-    return await csrf_validatior_deep(request, call_next)
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -39,6 +34,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def csrf_validatior(request: Request, call_next):
+    return await csrf_validatior_deep(request, call_next)
+
 app.add_middleware(
     JWTAuthMiddleware,
     backend=JWTAuthBackend()
