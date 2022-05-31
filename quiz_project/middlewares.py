@@ -18,7 +18,7 @@ from quiz_project.conf import (
 )
 
 
-async def csrf_validatior_deep(request: Request, call_next):
+async def csrf_validator_deep(request: Request, call_next):
 
     path = str(request.scope.get('path')).replace('/', '')
 
@@ -54,6 +54,45 @@ async def csrf_validatior_deep(request: Request, call_next):
             status_code=401,
             content={"detail": "CSRF is missing."}
         )
+    return response
+
+
+async def jwt_validator_deep(request: Request, call_next):
+    token = request.cookies.get('access_token_cookie')
+    path = str(request.scope.get('path')).replace('/', '')
+
+    if token:
+        jwt_decode = jwt.decode(token, os.getenv("SECRET_KEY"))
+        sub = jwt_decode['sub']
+
+        database_session = await get_session()
+        async with UserManager(database_session) as manager:
+            if await manager.get_user_by_username(username=sub):
+                response = await call_next(request)
+            else:
+                return JSONResponse(
+                    status_code=401,
+                    content={"detail": "JWT subject not found."}
+                )
+
+    elif path in JWT_PATHS_IGNORED:
+        response = await call_next(request)
+        if path == 'login':
+            user = 'admins'
+
+            propertys = {
+                'sub': user
+            }
+            jwt_encode = jwt.encode(propertys, os.getenv('SECRET_KEY'))
+            jwt_decode = jwt.decode(jwt_encode, os.getenv("SECRET_KEY"))
+            response.set_cookie(key='access_token_cookie', value=jwt_encode)
+
+    else:
+        return JSONResponse(
+            status_code=401,
+            content={"detail": "JWT is missing."}
+        )
+
     return response
 
 
@@ -107,9 +146,8 @@ class JWTAuthMiddleware(AuthenticationMiddleware):
                 auth_result = AuthCredentials(), UnauthenticatedUser()
                 scope["auth"], scope["user"] = auth_result
                 await self.app(scope, receive, send)
-                return
-            await super().__call__(scope, receive, send)
-            conn = HTTPConnection(scope)
+            else:
+                await super().__call__(scope, receive, send)
         except HTTPException as exc:
             conn = HTTPConnection(scope)
             response = self.on_error(conn, exc)

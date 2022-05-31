@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from user_app.views import user_router
-from quiz_project.middlewares import csrf_validatior_deep, JWTAuthBackend, JWTAuthMiddleware
+from quiz_project.middlewares import csrf_validator_deep, jwt_validator_deep, JWTAuthBackend, JWTAuthMiddleware
 from test_app.views import (
     test_router,
     question_router,
@@ -24,7 +24,7 @@ app.include_router(user_answer_router)
 
 origins = [
     "http://localhost",
-    "http://localhost:3000",
+    "http://localhost:3001",
 ]
 
 app.add_middleware(
@@ -35,12 +35,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# app.add_middleware(
+#     JWTAuthMiddleware,
+#     backend=JWTAuthBackend()
+# )
 
-@app.middleware("http")
+
+@app.middleware('http')
 async def csrf_validatior(request: Request, call_next):
-    return await csrf_validatior_deep(request, call_next)
+    return await csrf_validator_deep(request, call_next)
 
-app.add_middleware(
-    JWTAuthMiddleware,
-    backend=JWTAuthBackend()
-)
+
+@app.middleware('http')
+async def jwt_validator(request: Request, call_next):
+    return await jwt_validator_deep(request, call_next)
