@@ -1,15 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+
 from test_app.crud.session_crud import SessionManager
 from test_app.crud.user_answer_crud import UserAnswerManager
 from test_app.schemas.user_answer_schemas import CreateUserAnswer, GetUserAnswer
-
-from user_app.models import User
-
 from quiz_project.database import get_session
-from quiz_project.utils.dependencies import get_current_user
-
 from test_app.checks.common import check_if_exists
+
 
 user_answer_router = APIRouter(
     prefix="/sessions/{session_id}/user_answers",
@@ -25,11 +22,11 @@ user_answer_router = APIRouter(
 async def create_user_answer(
     session_id: int,
     user_answer: CreateUserAnswer,
-    auth: User = Depends(get_current_user),
+    request: Request,
     database_session: AsyncSession = Depends(get_session),
 ):
     async with SessionManager(database_session) as manager:
-        session_object = await manager.get_session(auth.id, session_id)
+        session_object = await manager.get_session(request.user.id, session_id)
         await check_if_exists(session_object)
         if not session_object.questions:
             raise HTTPException(

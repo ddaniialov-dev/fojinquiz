@@ -33,3 +33,11 @@ def get_config():
 
 
 SAFE_METHODS = ["GET", "HEAD", "OPTIONS", "TRACE"]
+LIFETIME_TOKEN_HOUR = 1
+
+JWT_PATHS_IGNORED = ['register', 'login', 'get-csrf',
+                     'docs', 'redoc', 'openapi.json', 'favicon.ico']
+
+
+CSRF_PATHS_IGNORED = ['get-csrf', 'docs',
+                      'redoc', 'openapi.json', 'favicon.ico']

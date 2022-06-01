@@ -1,11 +1,8 @@
-import secrets
-
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from quiz_project.conf import SAFE_METHODS
 from user_app.views import user_router
+from quiz_project.middlewares import csrf_validator_deep, jwt_validator_deep, JWTAuthBackend, JWTAuthMiddleware
 from test_app.views import (
     test_router,
     question_router,
@@ -17,9 +14,17 @@ from test_app.views import (
 
 app = FastAPI()
 
+
+app.include_router(user_router)
+app.include_router(question_router)
+app.include_router(test_router)
+app.include_router(session_router)
+app.include_router(answer_router)
+app.include_router(user_answer_router)
+
 origins = [
     "http://localhost",
-    "http://localhost:3000",
+    "http://localhost:3001",
 ]
 
 app.add_middleware(
@@ -30,37 +35,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(user_router)
-app.include_router(question_router)
-app.include_router(test_router)
-app.include_router(session_router)
-app.include_router(answer_router)
-app.include_router(user_answer_router)
+# app.add_middleware(
+#     JWTAuthMiddleware,
+#     backend=JWTAuthBackend()
+# )
 
 
-@app.middleware("http")
+@app.middleware('http')
 async def csrf_validatior(request: Request, call_next):
-    if request.method in SAFE_METHODS:
-        response = await call_next(request)
-        if not request.headers.get("X-CSRF"):
-            csrf = secrets.token_hex(32)
-            response.set_cookie(key="CSRF", value=csrf)
-            response.headers["X-CSRF"] = csrf
-    else:
-        header_csrf = request.headers.get("X-CSRF")
-        if header_csrf:
-            cookies_csrf = request.cookies.get("CSRF")
-            if not cookies_csrf:
-                return JSONResponse(
-                    status_code=401, content={"detail": "Cookies hasn't CSRF."}
-                )
-            if cookies_csrf == header_csrf:
-                response = await call_next(request)
-                return response
-            else:
-                return JSONResponse(
-                    status_code=401, content={"detail": "CSRF is not valid."}
-                )
-        return JSONResponse(status_code=401, content={"detail": "CSRF is missing."})
+    return await csrf_validator_deep(request, call_next)
 
-    return response
+
+@app.middleware('http')
+async def jwt_validator(request: Request, call_next):
+    return await jwt_validator_deep(request, call_next)
