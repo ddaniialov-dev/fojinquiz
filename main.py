@@ -1,10 +1,6 @@
-import secrets
-
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from quiz_project.conf import SAFE_METHODS
 from user_app.views import user_router
 from test_app.views import (
     test_router,
