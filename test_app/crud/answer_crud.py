@@ -38,9 +38,9 @@ class AnswerManager(AbstractBaseManager):
         result = await self._database_session.execute(query)
         return result.scalars().one_or_none()
 
-    async def update_answer(self, answer_id: int, data: dict) -> Answer:
+    async def update_answer(self, answer_id: int, data: dict, question_id: int) -> Answer:
         if data.get("is_true"):
-            query = update(Answer).values({"is_true": False})
+            query = update(Answer).where(Answer.question_id == question_id).values({"is_true": False})
             response = await self._database_session.execute(query)
         query = (
             update(Answer).returning(Answer).where(

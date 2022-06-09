@@ -77,7 +77,7 @@ async def update_answer(
     async with AnswerManager(database_session) as manager:
         await get_answer(question_id, answer_id, auth, database_session)
         answer_object = await manager.update_answer(
-            answer_id, answer.dict(exclude_unset=True)
+            answer_id, answer.dict(exclude_unset=True), question_id
         )
         return answer_object
 
