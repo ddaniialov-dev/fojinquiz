@@ -23,6 +23,7 @@ flake8 = "^4.0.1"
 flake8-isort = "^4.1.1"
 flake8-return = "^1.1.3"
 flake8-broken-line = "^0.4.0"
+typer = "^0.4.1"
 
 [tool.poetry.dev-dependencies]
 ipython = "^8.1.1"

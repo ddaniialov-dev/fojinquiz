@@ -26,10 +26,17 @@ POSTGRES_HOST=db
 POSTGRES_HOST=localhost:5432
 
 ### To accept migrations
-- docker exec -ti fojinquiz_web_1 alembic upgrade head
-
+```bash
+docker exec -ti fojinquiz_web_1 alembic upgrade head
+```
 ### To run project
 Execute "docker-compose up" command
 
 ### To read API docs
 Please go to "http://localhost/redoc/"
+
+### To create admin
+Run in terminal:
+```bash
+python createsuperuser.py [USERNAME] [EMAIL] [PASSWORD]
+```

@@ -5,7 +5,6 @@ from sqlalchemy import and_
 from sqlalchemy.future import select
 
 from quiz_project.behaviours.base_manager import AbstractBaseManager
-
 from .models import User
 from .schemas import UserCreate
 
@@ -55,3 +54,6 @@ class UserManager(AbstractBaseManager):
         await self.create(db_user)
 
         return db_user
+
+    def create_admin(self, user=None):
+        return

@@ -17,6 +17,9 @@ class Settings:
     DATABASE_URL = (
         f"postgresql+asyncpg://{DB['USER']}:{DB['PASSWORD']}@{DB['HOST']}/{DB['NAME']}"
     )
+    DATABASE_SYNC_URL = (
+        f"postgresql://{DB['USER']}:{DB['PASSWORD']}@{DB['HOST']}/{DB['NAME']}"
+    )
     MEDIA_ROOT = os.getenv("MEDIA_ROOT")
     CONTENT_TYPES = ['image/jpeg', 'image/png', 'image/gif']
 
