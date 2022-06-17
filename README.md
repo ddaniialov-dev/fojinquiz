@@ -36,7 +36,11 @@ Execute "docker-compose up" command
 Please go to "http://localhost/redoc/"
 
 ### To create admin
-Run in terminal:
+Run in terminal:  
 ```bash
-python createsuperuser.py [USERNAME] [EMAIL] [PASSWORD]
+python createsuperuser.py [OPTIONS] USERNAME EMAIL PASSWORD
+```
+You can use help:
+```bash
+python createsuperuser.py --help
 ```
