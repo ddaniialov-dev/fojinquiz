@@ -5,6 +5,7 @@ class UserGet(BaseModel):
     id: int
     username: str
     email: str
+    is_admin: bool
 
     class Config:
         orm_mode = True
