@@ -1,15 +1,7 @@
-from sqlalchemy import (
-    Boolean,
-    Column,
-    ForeignKey,
-    Integer,
-    DateTime,
-    Text,
-    Table,
-    String,
-    CheckConstraint,
-)
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy import (Boolean, CheckConstraint, Column, DateTime, ForeignKey,
+                        Integer, String, Table, Text)
+from sqlalchemy.orm import backref, relationship
+
 from quiz_project.behaviours.base_model import AbstractBaseModel
 
 session_question = Table(
@@ -54,6 +46,10 @@ class Question(AbstractBaseModel):
         backref=backref("question", lazy="selectin"),
         lazy="selectin",
     )
+    user_answers = relationship(
+        "UserAnswer",
+        backref=backref("question", lazy="selectin"),
+        lazy="selectin",)
     images = relationship(
         "Image",
         lazy="selectin",
@@ -81,6 +77,8 @@ class UserAnswer(AbstractBaseModel):
 
     answer_id = Column(Integer, ForeignKey("answers.id", ondelete="CASCADE"))
     session_id = Column(Integer, ForeignKey("sessions.id", ondelete="CASCADE"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    question_id = Column(Integer, ForeignKey("questions.id", ondelete="CASCADE"))
 
 
 class Session(AbstractBaseModel):

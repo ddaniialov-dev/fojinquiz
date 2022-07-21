@@ -1,4 +1,6 @@
-from sqlalchemy import delete, select, and_
+import datetime
+
+from sqlalchemy import and_, delete, select, update
 from sqlalchemy.orm import selectinload
 
 from quiz_project.behaviours.base_manager import AbstractBaseManager
@@ -48,7 +50,14 @@ class SessionManager(AbstractBaseManager):
 
     async def delete_session(self, session_id: int):
         query = delete(Session).returning(Session).where(
-            and_(Session.id == session_id))
+            and_(Session.id == session_id)
+        )
 
         result = await self._database_session.execute(query)
         return result.first()
+
+    async def set_finished_date(self, session_id: int):
+        query = update(Session).where(
+            Session.id == session_id
+        ).values(finished_date=datetime.datetime.now())
+        await self._database_session.execute(query)
