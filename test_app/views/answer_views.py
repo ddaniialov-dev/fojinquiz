@@ -38,13 +38,11 @@ async def create_answer(
 @answer_router.get("/answers/", status_code=200, response_model=list[GetAnswer])
 async def get_answers(
     question_id: int,
-    auth: User = Depends(get_current_user),
     database_session: AsyncSession = Depends(get_session),
 ):
     async with AnswerManager(database_session) as manager:
         question_object = await manager.get_question(question_id)
         await check_if_exists(question_object)
-        await check_if_holder(auth.id, question_object.test.holder_id)
         answer_objects = await manager.get_answers(question_id)
         return answer_objects
 
