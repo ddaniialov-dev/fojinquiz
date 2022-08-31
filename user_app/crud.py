@@ -1,7 +1,7 @@
 import hashlib
 from uuid import NAMESPACE_X500, uuid5
 
-from sqlalchemy import and_
+from sqlalchemy import and_, update
 from sqlalchemy.future import select
 
 from quiz_project.behaviours.base_manager import AbstractBaseManager
@@ -40,14 +40,12 @@ class UserManager(AbstractBaseManager):
         response = await self._database_session.execute(query)
         return response.scalars().all()
 
-    async def hash_password(self, user: UserCreate):
+    async def hash_password(self, user: UserCreate, password: str):
         salt = uuid5(NAMESPACE_X500, user.username).hex.encode()
-        password = user.password.encode()
-        hashed_password = hashlib.sha512(password + salt).hexdigest()
-        return hashed_password
+        return hashlib.sha512(password.encode() + salt).hexdigest()
 
     async def create_user(self, user: UserCreate):
-        password = await self.hash_password(user)
+        password = await self.hash_password(user, user.password)
         db_user = User(
             username=user.username, hashed_password=password, email=user.email
         )
@@ -55,5 +53,8 @@ class UserManager(AbstractBaseManager):
 
         return db_user
 
-    def create_admin(self, user=None):
-        return
+    async def update_user_password(self, user: User, new_password: str):
+        hashed_password = await self.hash_password(user, new_password)
+        query = update(User).where(User.id == user.id).values(hashed_password=hashed_password)
+        await self._database_session.execute(query)
+

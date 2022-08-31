@@ -8,7 +8,7 @@ from quiz_project.database import get_session
 from quiz_project.utils.dependencies import get_current_user
 
 from .crud import UserManager
-from .schemas import UserGet, UserCreate, UserLogin
+from .schemas import UserGet, UserCreate, UserLogin, UserResetPassword
 from .models import User
 
 
@@ -50,6 +50,19 @@ async def register(
 
         user = await manager.create_user(user=user)
         return JSONResponse(content={"detail": "Registered"}, status_code=201)
+
+
+@user_router.put(
+    "/reset_password/", status_code=status.HTTP_200_OK, response_class=JSONResponse
+)
+async def reset_password(
+        auth: UserResetPassword,
+        database_session: AsyncSession = Depends(get_session)
+):
+    async with UserManager(database_session) as manager:
+        user = await manager.get_user_by_email(auth.email)
+        await manager.update_user_password(user, auth.password)
+        return JSONResponse(content={"detail": "Password changed succsessfully"})
 
 
 @user_router.post(
