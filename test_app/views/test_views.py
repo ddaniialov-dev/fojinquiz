@@ -31,10 +31,14 @@ async def get_user_tests(
 @test_router.get("/all/", status_code=200, response_model=list[GetTest])
 async def get_all_tests(
     database_session: AsyncSession = Depends(get_session),
+    auth: User = Depends(get_current_user),
 ) -> list[GetTest]:
     async with TestManager(database_session) as manager:
-        tests = await manager.get_tests()
-        return tests
+        if auth.is_admin:
+            tests = await manager.get_tests()
+            return tests
+        pub_tests = await manager.get_published_tests()
+        return pub_tests
 
 
 @test_router.post("/", status_code=201, response_model=GetTest)

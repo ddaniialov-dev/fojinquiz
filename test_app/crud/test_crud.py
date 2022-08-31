@@ -15,6 +15,11 @@ class TestManager(AbstractBaseManager):
         result = await self._database_session.execute(query)
         return result.scalars().fetchall()
 
+    async def get_published_tests(self):
+        query = select(Test).where(Test.published)
+        result = await self._database_session.execute(query)
+        return result.scalars().fetchall()
+
     async def get_user_tests(self, user_id: int) -> List[Test]:
         query = (
             select(Test)
