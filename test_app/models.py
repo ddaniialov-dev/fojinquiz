@@ -22,6 +22,7 @@ class Test(AbstractBaseModel):
     title = Column(String(256))
     holder_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     published = Column(Boolean)
+    duration = Column(Integer)
     questions = relationship(
         "Question",
         backref=backref("test", lazy="selectin"),
