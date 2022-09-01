@@ -108,6 +108,18 @@ async def make_moderators(
     return JSONResponse(content={"detail": "Moderators status changed"})
 
 
+@user_router.get("/get_all_users/", status_code=status.HTTP_200_OK, response_model=List[UserGet])
+async def get_all_users(
+        auth: User = Depends(get_current_user),
+        database_session: AsyncSession = Depends(get_session)
+):
+    if not auth.is_admin:
+        raise HTTPException(status_code=403, detail='You are not admin')
+    async with UserManager(database_session) as manager:
+        result = await manager.get_users()
+    return result
+
+
 @user_router.delete("/logout")
 def logout(auth: AuthJWT = Depends()):
     """

@@ -36,8 +36,8 @@ class UserManager(AbstractBaseManager):
         response = await self._database_session.execute(query)
         return response.scalars().first()
 
-    async def get_users(self, skip: int = 0, limit: int = 100):
-        query = select(User).offset(skip).limit(limit)
+    async def get_users(self):
+        query = select(User)
         response = await self._database_session.execute(query)
         return response.scalars().all()
 

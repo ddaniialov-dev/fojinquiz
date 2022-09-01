@@ -6,7 +6,7 @@ class UserGet(BaseModel):
     username: str
     email: str
     is_admin: bool
-    is_moderator: bool
+    is_moderator: bool | None
 
     class Config:
         orm_mode = True
