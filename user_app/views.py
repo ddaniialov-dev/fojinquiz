@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, status, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi_jwt_auth import AuthJWT
@@ -92,6 +94,20 @@ async def obtain_auth_tokens(user: UserCreate, auth: AuthJWT) -> dict:
     return {"access_token": access_token, "refresh_token": refresh_token}
 
 
+@user_router.put("/make_moderators/{value}/", status_code=status.HTTP_200_OK)
+async def make_moderators(
+        value: bool,
+        user_ids: List[int],
+        auth: User = Depends(get_current_user),
+        database_session: AsyncSession = Depends(get_session)
+):
+    if not auth.is_admin:
+        raise HTTPException(status_code=403, detail='You are not admin')
+    async with UserManager(database_session) as manager:
+        await manager.create_moderators(user_ids, value)
+    return JSONResponse(content={"detail": "Moderators status changed"})
+
+
 @user_router.delete("/logout")
 def logout(auth: AuthJWT = Depends()):
     """
@@ -103,3 +119,4 @@ def logout(auth: AuthJWT = Depends()):
 
     auth.unset_jwt_cookies()
     return {"msg": "Successfully logout"}
+

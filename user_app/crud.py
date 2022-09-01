@@ -1,4 +1,5 @@
 import hashlib
+from typing import List
 from uuid import NAMESPACE_X500, uuid5
 
 from sqlalchemy import and_, update
@@ -58,3 +59,6 @@ class UserManager(AbstractBaseManager):
         query = update(User).where(User.id == user.id).values(hashed_password=hashed_password)
         await self._database_session.execute(query)
 
+    async def create_moderators(self, user_ids: List[int], value: bool):
+        query = update(User).where(User.id.in_(user_ids)).values(is_moderator=value)
+        await self._database_session.execute(query)

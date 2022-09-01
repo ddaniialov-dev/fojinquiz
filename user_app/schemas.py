@@ -6,6 +6,7 @@ class UserGet(BaseModel):
     username: str
     email: str
     is_admin: bool
+    is_moderator: bool
 
     class Config:
         orm_mode = True
@@ -69,6 +70,3 @@ class UserCreate(BaseModel):
             raise ValueError("Email does not match")
         return v
 
-
-class UserGetSchema(UserCreate):
-    id: int

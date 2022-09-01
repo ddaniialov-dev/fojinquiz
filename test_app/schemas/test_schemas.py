@@ -45,7 +45,7 @@ class CreateTest(BaseModel):
         orm_mode = True
 
     @validator('duration')
-    def postive_field(cls, value):
+    def positive_field(cls, value):
         if value < 0:
             raise ValueError('Duration is not positive')
         return value

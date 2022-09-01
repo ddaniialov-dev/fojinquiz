@@ -13,6 +13,7 @@ class User(AbstractBaseModel):
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
     is_admin = Column(Boolean, default=False)
+    is_moderator = Column(Boolean, default=False)
     tests = relationship(
         "Test",
         backref=backref("holder", lazy="selectin"),

@@ -21,7 +21,8 @@ def createsuperuser(
                 username=username,
                 hashed_password=password,
                 email=email,
-                is_admin=True
+                is_admin=True,
+                is_moderator=True
             )
         )
         connection.execute(query)
