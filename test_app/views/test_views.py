@@ -34,7 +34,7 @@ async def get_all_tests(
     auth: User = Depends(get_current_user),
 ) -> list[GetTest]:
     async with TestManager(database_session) as manager:
-        if auth.is_admin:
+        if auth.is_admin or auth.is_moderator:
             tests = await manager.get_tests()
             return tests
         pub_tests = await manager.get_published_tests()
