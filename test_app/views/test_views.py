@@ -49,7 +49,7 @@ async def create_test(
 ) -> GetTest:
     async with UserManager(database_session) as manager:
         user = await manager.get_user(auth.id)
-        if not (user.is_admin | user.is_moderator):
+        if not (user.is_admin or user.is_moderator):
             raise HTTPException(
                 status_code=403,
                 detail="You need to be an administrator or moderator to create tests!",
