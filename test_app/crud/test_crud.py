@@ -48,7 +48,8 @@ class TestManager(AbstractBaseManager):
         query = (
             delete(Test)
             .returning(Test)
-            .where(and_(Test.id == test_id, holder.id == Test.holder_id))
+            .where(Test.id == test_id)
+            # .where(and_(Test.id == test_id, holder.id == Test.holder_id))
         )
 
         result = await self._database_session.execute(query)
