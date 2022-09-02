@@ -78,8 +78,9 @@ async def update_test(
     auth: User = Depends(get_current_user),
 ):
     async with TestManager(database_session) as manager:
-        test_object = await get_test(test_id, database_session)
-        await check_if_holder(auth.id, test_object.holder_id)
+        if not auth.is_admin:
+            test_object = await get_test(test_id, database_session)
+            await check_if_holder(auth.id, test_object.holder_id)
         test = await manager.update_test(
             test_id, test.dict(exclude={"holder_id"}, exclude_unset=True)
         )
@@ -96,7 +97,8 @@ async def delete_test(
     auth: User = Depends(get_current_user),
 ) -> Response:
     async with TestManager(database_session) as manager:
-        test_object = await get_test(test_id, database_session)
-        await check_if_holder(auth.id, test_object.holder_id)
+        if not auth.is_admin:
+            test_object = await get_test(test_id, database_session)
+            await check_if_holder(auth.id, test_object.holder_id)
         await manager.delete_test(auth, test_id)
         return Response(status_code=204)
