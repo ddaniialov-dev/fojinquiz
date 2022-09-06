@@ -46,8 +46,9 @@ async def create_question(
 ) -> GetQuestion:
     async with QuestionManager(database_session) as manager:
         test = await manager.get_test(test_id)
-        await check_if_exists(test)
-        await check_if_holder(auth.id, test.holder_id)
+        if not auth.is_admin:
+            await check_if_exists(test)
+            await check_if_holder(auth.id, test.holder_id)
         question_object = await manager.create_question(question, test)
         return question_object
 
@@ -77,13 +78,14 @@ async def update_question(
     database_session: AsyncSession = Depends(get_session),
 ) -> GetQuestion:
     async with QuestionManager(database_session) as manager:
-        test = await manager.get_test(test_id)
-        await check_if_exists(test)
-        question_object = await get_question(
-            question_id, test_id, auth, database_session
-        )
-        await check_if_test_has_question(test_id, question_object)
-        await check_if_holder(auth.id, test.holder_id)
+        if not auth.is_admin:
+            test = await manager.get_test(test_id)
+            await check_if_exists(test)
+            question_object = await get_question(
+                question_id, test_id, auth, database_session
+            )
+            await check_if_test_has_question(test_id, question_object)
+            await check_if_holder(auth.id, test.holder_id)
         question = await manager.update_question(
             question.dict(exclude_unset=True), question_id
         )
@@ -101,12 +103,13 @@ async def delete_question(
     database_session: AsyncSession = Depends(get_session),
 ) -> Response:
     async with QuestionManager(database_session) as manager:
-        test = await manager.get_test(test_id)
-        question_object = await get_question(
-            question_id, test_id, auth, database_session
-        )
-        await check_if_test_has_question(test_id, question_object)
-        await check_if_holder(auth.id, test.holder_id)
+        if not auth.is_admin:
+            test = await manager.get_test(test_id)
+            question_object = await get_question(
+                question_id, test_id, auth, database_session
+            )
+            await check_if_test_has_question(test_id, question_object)
+            await check_if_holder(auth.id, test.holder_id)
         await manager.delete_question(question_id)
         return Response(status_code=204)
 
